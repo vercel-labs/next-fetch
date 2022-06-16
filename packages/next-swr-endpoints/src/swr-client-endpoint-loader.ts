@@ -1,6 +1,11 @@
 import type { LoaderDefinition } from "webpack";
 import { parseEndpointFile } from "./parseEndpointFile";
-import { ConcatSource, ReplaceSource, SourceMapSource } from "webpack-sources";
+import {
+  ConcatSource,
+  OriginalSource,
+  ReplaceSource,
+  SourceMapSource,
+} from "webpack-sources";
 import path from "path";
 
 const loader: LoaderDefinition<{
@@ -9,13 +14,15 @@ const loader: LoaderDefinition<{
   basePath: string;
 }> = function (content, sourcemaps, additionalData) {
   const { projectDir, pageExtensionsRegex, basePath } = this.getOptions();
-  const source = new ReplaceSource(
-    new SourceMapSource(
-      content,
-      this.resourcePath,
-      typeof sourcemaps === "string" ? JSON.parse(sourcemaps) : sourcemaps
-    )
-  );
+  const originalSource =
+    typeof sourcemaps === "undefined"
+      ? new OriginalSource(content, this.resourcePath)
+      : new SourceMapSource(
+          content,
+          this.resourcePath,
+          typeof sourcemaps === "string" ? JSON.parse(sourcemaps) : sourcemaps
+        );
+  const source = new ReplaceSource(originalSource);
   const parsed = parseEndpointFile(content);
   for (const [start, end] of parsed.regionsToRemove) {
     source.replace(start, end, "");
@@ -49,12 +56,8 @@ const loader: LoaderDefinition<{
     exports.join("\n\n")
   );
 
-  this.callback(
-    null,
-    concat.source(),
-    concat.map() ?? undefined,
-    additionalData
-  );
+  const { source: outputCode, map: outputSourceMap } = concat.sourceAndMap();
+  this.callback(null, outputCode, outputSourceMap ?? undefined, additionalData);
 };
 
 export default loader;
