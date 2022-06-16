@@ -8,6 +8,7 @@
     "test": "turbo run test",
     "build": "turbo run build"
   },
+  "packageManager": "pnpm@7",
   "keywords": [],
   "author": "",
   "license": "ISC",
