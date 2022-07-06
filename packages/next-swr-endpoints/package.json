@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsup src/swr-server-endpoint-loader.ts src/swr-client-endpoint-loader.ts src/index.ts --dts"
+    "build": "tsup",
+    "dev": "tsup --watch"
   },
   "keywords": [],
   "author": "",
