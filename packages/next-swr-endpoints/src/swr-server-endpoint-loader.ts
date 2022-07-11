@@ -1,6 +1,6 @@
 import type { LoaderDefinition } from "webpack";
 import { ReplaceSource, SourceMapSource } from "webpack-sources";
-import { parseEndpointFile } from "./parseEndpointFile";
+import { parseEndpointFile, type Queries } from "./parseEndpointFile";
 
 const loader: LoaderDefinition = function (
   content,
@@ -20,27 +20,25 @@ const loader: LoaderDefinition = function (
     source.replace(start, end, "");
   }
 
-  let queriesCode = "{";
-  for (const [name, { parserCode, callbackCode }] of Object.entries(
-    parsed.queries
-  )) {
-    queriesCode += `${JSON.stringify(
-      name
-    )}: { parser: ${parserCode}, callback: ${callbackCode} },`;
-  }
-  queriesCode += "}";
+  const queriesCode = stringifyQueries(parsed.queries);
+  const mutationsCode = stringifyQueries(parsed.mutations);
 
   const output = `
     ${source.source()}
 
     const queries = ${queriesCode};
-    const mutations = {};
+    const mutations = ${mutationsCode};
 
     export default async (req, res) => {
-      const query = queries[req.query.__query];
+      const bag = req.method === "POST" ? mutations : queries;
+      const bagName = bag === mutations ? 'mutation' : 'query';
+      const bagNamePlural = bag === mutations ? 'mutations' : 'queries';
+
+      const query = bag.get(req.query.__query);
       delete req.query.__query;
       if (!query) {
-        return res.status(400).send(\`Unknown query \${req.query.__query}. Available queries: \${Object.keys(queries).join(", ")}\`);
+        const available = [...bag.keys()]
+        return res.status(400).send(\`Unknown \${bagName} \${req.query.__query}. Available \${bagNamePlural}: \${available.join(", ")}\`);
       }
 
       const { parser, callback } = query;
@@ -60,3 +58,14 @@ const loader: LoaderDefinition = function (
 };
 
 export default loader;
+
+function stringifyQueries(queries: Queries): string {
+  const queryArrays = Object.entries(queries).map(
+    ([name, { parserCode, callbackCode }]) => {
+      return `[${JSON.stringify(
+        name
+      )}, { parser: ${parserCode}, callback: ${callbackCode} }]`;
+    }
+  );
+  return `new Map([${queryArrays.join(", ")}])`;
+}

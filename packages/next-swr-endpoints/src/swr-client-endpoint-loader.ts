@@ -34,7 +34,7 @@ const loader: LoaderDefinition<{
     .replace(pageExtensionsRegex, "");
   const apiPage = `${basePath}/${resource}`;
 
-  const exports = Object.keys(parsed.queries).map((name) => {
+  const queryExports = Object.keys(parsed.queries).map((name) => {
     return `
       export function ${name}(arg, opts = {}) {
         const searchParams = new URLSearchParams(arg);
@@ -49,14 +49,36 @@ const loader: LoaderDefinition<{
     `;
   });
 
+  // const mutationExports = Object.keys(parsed.mutations).map((name) => {
+  //   return `
+  //     export function ${name}(opts = {}) {
+  //       const searchParams = new URLSearchParams(arg);
+  //       searchParams.set('__query', ${JSON.stringify(name)});
+  //       return useSWRMutation(${JSON.stringify(
+  //         apiPage
+  //       )} + '?' + searchParams.toString(), {
+  //         fetcher: (url, body) =>
+  //           fetch(url, {
+  //             method: "POST",
+  //             headers: { 'Content-Type': 'application/json' },
+  //             body: JSON.stringify(body),
+  //           })
+  //           .then((res) => res.json()),
+  //         ...opts,
+  //       });
+  //     }
+  //   `;
+  // });
+
   const concat = new ConcatSource(
     source,
     `\n/**/;`,
-    'import useSWR from "swr";',
-    exports.join("\n\n")
+    'import useSWR from "swr"; import useSWRMutation from "swr/mutation";',
+    [...queryExports].join("\n\n")
   );
 
   const { source: outputCode, map: outputSourceMap } = concat.sourceAndMap();
+  console.log(outputCode);
   this.callback(null, outputCode, outputSourceMap ?? undefined, additionalData);
 };
 
