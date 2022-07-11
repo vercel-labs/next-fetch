@@ -7,20 +7,21 @@
     "build": "next build",
     "start": "next start",
     "dev": "next dev",
-    "test": "#"
+    "test": "playwright test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "next": "^12.1.6",
-    "next-swr-endpoints": "workspace:^1.0.0",
+    "next-swr-endpoints": "workspace:*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "swr": "^1.3.0",
+    "swr": "^2.0.0-beta.6",
     "zod": "^3.17.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.23.2",
     "@types/node": "^17.0.38",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5",
