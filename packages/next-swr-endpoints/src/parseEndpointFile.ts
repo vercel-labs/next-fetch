@@ -18,6 +18,8 @@ export function parseEndpointFile(content: string): {
   const regionsToRemove: [start: number, end: number][] = [];
   simple(ast, {
     ExportNamedDeclaration(node: any) {
+      const rangesToKeep: [start: number, end: number][] = [];
+
       for (const declaration of node.declaration.declarations) {
         if (
           declaration.init.type === "CallExpression" &&
@@ -31,14 +33,26 @@ export function parseEndpointFile(content: string): {
             parserCode: content.slice(parser.start, parser.end),
             callbackCode: content.slice(callback.start, callback.end),
           };
-
-          break;
+        } else if (declaration.id.name === "config") {
+          rangesToKeep.push([declaration.start, declaration.end]);
+        } else {
+          errors.push(`Declaration at ${declaration.id.name} is wrong`);
         }
-
-        errors.push(`Declaration at ${declaration.id.name} is wrong`);
       }
 
-      regionsToRemove.push([node.start, node.end]);
+      if (rangesToKeep.length) {
+        const sorted = [...rangesToKeep].sort((a, z) => a[0] - z[0]);
+        regionsToRemove.push([
+          node.declaration.start + node.declaration.kind.length + 1,
+          sorted[0][0] - 1,
+        ]);
+        regionsToRemove.push([
+          sorted[sorted.length - 1][1],
+          node.declaration.end,
+        ]);
+      } else {
+        regionsToRemove.push([node.start, node.end]);
+      }
     },
   });
 
