@@ -6,8 +6,13 @@
       "outputs": ["dist/**", ".next/**"]
     },
     "test": {
-      "dependsOn": ["build"],
+      "dependsOn": ["prepare-env:test", "build"],
       "outputs": []
+    },
+    "prepare-env:test": {
+      "dependsOn": ["^prepare-env:test"],
+      "outputs": [],
+      "cache": false
     }
   }
 }
