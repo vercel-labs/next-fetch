@@ -5,25 +5,29 @@ type ParsedQuery = {
   parserCode: string;
   callbackCode: string;
 };
-type Queries = { [name: string]: ParsedQuery };
+export type Queries = { [name: string]: ParsedQuery };
 export function parseEndpointFile(content: string): {
   queries: Queries;
+  mutations: Queries;
   regionsToRemove: [start: number, end: number][];
 } {
   const ast = parse(content, { ecmaVersion: "latest", sourceType: "module" });
   const errors: string[] = [];
   const queries: Queries = {};
+  const mutations: Queries = {};
   const regionsToRemove: [start: number, end: number][] = [];
   simple(ast, {
     ExportNamedDeclaration(node: any) {
       for (const declaration of node.declaration.declarations) {
         if (
           declaration.init.type === "CallExpression" &&
-          declaration.init.callee?.name === "query"
+          ["query", "mutation"].includes(declaration.init.callee?.name)
         ) {
           const name = declaration.id;
           const [parser, callback] = declaration.init.arguments;
-          queries[content.slice(name.start, name.end)] = {
+          const bag =
+            "query" === declaration.init.callee.name ? queries : mutations;
+          bag[content.slice(name.start, name.end)] = {
             parserCode: content.slice(parser.start, parser.end),
             callbackCode: content.slice(callback.start, callback.end),
           };
@@ -42,5 +46,5 @@ export function parseEndpointFile(content: string): {
     throw new Error(errors.join("\n"));
   }
 
-  return { queries, regionsToRemove };
+  return { queries, regionsToRemove, mutations };
 }

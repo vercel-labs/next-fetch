@@ -1,10 +1,11 @@
 import { useAllPeople } from "./api/people.swr";
+import useSWRMutation from "swr/mutation";
 
 export default function Home() {
   const result = useAllPeople({ name: "gal" });
 
   return (
-    <div>
+    <div id="result">
       {result.data
         ? result.data
         : result.error
