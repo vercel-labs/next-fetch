@@ -42,7 +42,13 @@ export function withSwrApiEndpoints(given: NextConfig = {}): NextConfig {
       config.module.rules.unshift({
         test: testRegex,
         issuerLayer: "api",
-        use: [serverLoader, context.defaultLoaders.babel],
+        use: [
+          {
+            loader: serverLoader,
+            options: { nextRuntime: context.nextRuntime },
+          },
+          context.defaultLoaders.babel,
+        ],
       });
       config.module.rules.unshift({
         test: testRegex,

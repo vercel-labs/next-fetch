@@ -3,11 +3,12 @@ import { SourceMapSource } from "webpack-sources";
 import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 import { parseEndpointFile, type Queries } from "./parseEndpointFile";
 
-const loader: LoaderDefinition = function (
+const loader: LoaderDefinition<{ nextRuntime?: "edge" | "nodejs" }> = function (
   content,
   sourcemaps,
   _additionalData
 ) {
+  const { nextRuntime } = this.getOptions();
   const parsed = parseEndpointFile(content);
   const source = cleanRegionsFromSource(
     new SourceMapSource(
@@ -24,7 +25,17 @@ const loader: LoaderDefinition = function (
     const queries = ${stringifyQueries(parsed.queries)};
     const mutations = ${stringifyQueries(parsed.mutations)};
 
-    export default async (req, res) => {
+    export default ${
+      nextRuntime === "edge" ? getEdgeFunctionCode() : getNodejsCode()
+    };
+  `;
+
+  return output;
+};
+
+function getNodejsCode() {
+  return `
+    async (req, res) => {
       const bag = req.method.toUpperCase() === 'POST' ? mutations : queries;
       const handler = bag.get(req.query.__handler);
       delete req.query.__handler;
@@ -45,11 +56,37 @@ const loader: LoaderDefinition = function (
 
       const response = await callback(data);
       return res.send(JSON.stringify(response));
-    };
-  `;
+    }
+  `.trim();
+}
 
-  return output;
-};
+function getEdgeFunctionCode() {
+  return `
+    async (req) => {
+      const url = req.nextUrl.clone();
+      const bag = req.method.toUpperCase() === 'POST' ? mutations : queries;
+      const handler = bag.get(url.searchParams.get('__handler'));
+      url.searchParams.delete('__handler');
+
+      if (!handler) {
+        return new Response("unknown handler", { status: 400 });
+      }
+
+      const { parser, callback } = handler;
+
+      try {
+        data = await (parser.parse ?? parser.parseAsync)(bag === mutations ? req.body : req.query);
+      } catch (e) {
+        return new Response(e.message, { status: 500 });
+      }
+
+      const response = await callback(data);
+      return __NextResponse__.json(response);
+    };
+
+    import { NextResponse as __NextResponse__ } from 'next/server';
+  `;
+}
 
 function stringifyQueries(queries: Queries): string {
   const queryArrays = Object.entries(queries).map(
