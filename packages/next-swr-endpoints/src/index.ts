@@ -16,7 +16,7 @@ export function query<T, V>(
 export function mutation<T, V>(
   parser: Parser<T>,
   callback: (parsed: T) => Promise<V>
-): SWRMutationResponse<V, any, T> {
+): () => SWRMutationResponse<V, any, T> {
   throw new Error("This code path should not be reached");
 }
 

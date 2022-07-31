@@ -1,6 +1,6 @@
 import type { LoaderDefinition } from "webpack";
 import { ReplaceSource, SourceMapSource } from "webpack-sources";
-import { parseEndpointFile } from "./parseEndpointFile";
+import { parseEndpointFile, type Queries } from "./parseEndpointFile";
 
 const loader: LoaderDefinition = function (
   content,
@@ -20,33 +20,27 @@ const loader: LoaderDefinition = function (
     source.replace(start, end, "");
   }
 
-  let queriesCode = "{";
-  for (const [name, { parserCode, callbackCode }] of Object.entries(
-    parsed.queries
-  )) {
-    queriesCode += `${JSON.stringify(
-      name
-    )}: { parser: ${parserCode}, callback: ${callbackCode} },`;
-  }
-  queriesCode += "}";
-
   const output = `
     ${source.source()}
 
-    const queries = ${queriesCode};
-    const mutations = {};
+    const queries = ${stringifyQueries(parsed.queries)};
+    const mutations = ${stringifyQueries(parsed.mutations)};
 
     export default async (req, res) => {
-      const query = queries[req.query.__query];
-      delete req.query.__query;
-      if (!query) {
-        return res.status(400).send(\`Unknown query \${req.query.__query}. Available queries: \${Object.keys(queries).join(", ")}\`);
+      const bag = req.method.toUpperCase() === 'POST' ? mutations : queries;
+      const handler = bag.get(req.query.__handler);
+      delete req.query.__handler;
+
+      if (!handler) {
+        return res
+          .status(400)
+          .send(\`Unknown handler \${req.query.__handler}. Available handlers: \${Object.keys(bag).join(", ")}\`);
       }
 
-      const { parser, callback } = query;
+      const { parser, callback } = handler;
       let data;
       try {
-        data = await (parser.parse ?? parser.parseAsync)(req.query);
+        data = await (parser.parse ?? parser.parseAsync)(bag === mutations ? req.body : req.query);
       } catch (e) {
         return res.status(400).send(e.message);
       }
@@ -58,5 +52,16 @@ const loader: LoaderDefinition = function (
 
   return output;
 };
+
+function stringifyQueries(queries: Queries): string {
+  const queryArrays = Object.entries(queries).map(
+    ([name, { parserCode, callbackCode }]) => {
+      return `[${JSON.stringify(
+        name
+      )}, { parser: ${parserCode}, callback: ${callbackCode} }]`;
+    }
+  );
+  return `new Map([${queryArrays.join(", ")}])`;
+}
 
 export default loader;
