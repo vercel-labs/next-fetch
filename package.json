@@ -1,15 +1,14 @@
 {
-  "name": "next-swr-endpoints",
+  "name": "next-swr-endpoints-monorepo",
   "private": true,
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
     "test": "turbo run test"
   },
-  "packageManager": "pnpm@7",
+  "packageManager": "pnpm@7.3.0",
   "keywords": [],
   "author": "",
   "license": "ISC",
