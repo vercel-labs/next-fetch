@@ -19,4 +19,6 @@ jobs:
           node-version: 16
           cache: 'pnpm'
       - run: pnpm install
+      - name: Install Playwright
+        run: pnpx playwright install --with-deps
       - run: pnpm test
