@@ -1,7 +1,8 @@
 import { parseEndpointFile } from "./parseEndpointFile";
 import { test, expect } from "vitest";
-import { RawSource, ReplaceSource } from "webpack-sources";
+import { RawSource } from "webpack-sources";
 import prettier from "prettier";
+import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 
 test("does not remove config export", () => {
   const input = `
@@ -15,29 +16,40 @@ test("does not remove config export", () => {
 
     export const useMyOtherQuery = query({}, () => "Hello World");
   `.trim();
-  const source = new ReplaceSource(new RawSource(input));
 
   const result = parseEndpointFile(input);
 
-  for (const [start, end] of result.regionsToRemove) {
-    source.replace(start, end, "");
-  }
-
-  expect(result.queries).toEqual<typeof result["queries"]>({
-    useMyOtherQuery: {
-      callbackCode: `() => "Hello World"`,
-      parserCode: `{}`,
+  expect(result).toEqual<typeof result>({
+    regionsToRemove: expect.any(Array),
+    mutations: {
+      useMyMutation: {
+        callbackCode: `() => "My mutation"`,
+        parserCode: `{}`,
+      },
     },
-    useMyQuery: {
-      callbackCode: `() => "Hello"`,
-      parserCode: `{}`,
+    queries: {
+      useMyOtherQuery: {
+        callbackCode: `() => "Hello World"`,
+        parserCode: `{}`,
+      },
+      useMyQuery: {
+        callbackCode: `() => "Hello"`,
+        parserCode: `{}`,
+      },
     },
   });
 
-  console.log(source.source());
+  const formattedCode = prettier
+    .format(
+      cleanRegionsFromSource(
+        new RawSource(input),
+        result.regionsToRemove
+      ).source(),
+      { parser: "babel" }
+    )
+    .trim();
 
-  expect(prettier.format(source.source(), { parser: "babel" }).trim())
-    .toMatchInlineSnapshot(`
+  expect(formattedCode).toMatchInlineSnapshot(`
       "import { query, mutation } from \\"next-swr-endpoints\\";
 
       export const config = {

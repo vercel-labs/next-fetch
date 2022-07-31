@@ -1,5 +1,6 @@
 import type { LoaderDefinition } from "webpack";
-import { ReplaceSource, SourceMapSource } from "webpack-sources";
+import { SourceMapSource } from "webpack-sources";
+import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 import { parseEndpointFile, type Queries } from "./parseEndpointFile";
 
 const loader: LoaderDefinition = function (
@@ -7,18 +8,15 @@ const loader: LoaderDefinition = function (
   sourcemaps,
   _additionalData
 ) {
-  const source = new ReplaceSource(
+  const parsed = parseEndpointFile(content);
+  const source = cleanRegionsFromSource(
     new SourceMapSource(
       content,
       this.resourcePath,
       typeof sourcemaps === "string" ? JSON.parse(sourcemaps) : sourcemaps
-    )
+    ),
+    parsed.regionsToRemove
   );
-
-  const parsed = parseEndpointFile(content);
-  for (const [start, end] of parsed.regionsToRemove) {
-    source.replace(start, end, "");
-  }
 
   const output = `
     ${source.source()}

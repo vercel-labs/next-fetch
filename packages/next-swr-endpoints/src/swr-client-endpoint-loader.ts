@@ -1,12 +1,8 @@
 import type { LoaderDefinition } from "webpack";
 import { parseEndpointFile } from "./parseEndpointFile";
-import {
-  ConcatSource,
-  OriginalSource,
-  ReplaceSource,
-  SourceMapSource,
-} from "webpack-sources";
+import { ConcatSource, OriginalSource, SourceMapSource } from "webpack-sources";
 import path from "path";
+import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 
 const loader: LoaderDefinition<{
   projectDir: string;
@@ -22,11 +18,8 @@ const loader: LoaderDefinition<{
           this.resourcePath,
           typeof sourcemaps === "string" ? JSON.parse(sourcemaps) : sourcemaps
         );
-  const source = new ReplaceSource(originalSource);
   const parsed = parseEndpointFile(content);
-  for (const [start, end] of parsed.regionsToRemove) {
-    source.replace(start, end, "");
-  }
+  const source = cleanRegionsFromSource(originalSource, parsed.regionsToRemove);
 
   const resource = path
     .relative(projectDir, this.resourcePath)

@@ -6,6 +6,7 @@ type ParsedQuery = {
   callbackCode: string;
 };
 export type Queries = { [name: string]: ParsedQuery };
+
 export function parseEndpointFile(content: string): {
   queries: Queries;
   mutations: Queries;
