@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "./dist/**/*"
+  ],
   "scripts": {
-    "build": "tsup src/swr-server-endpoint-loader.ts src/swr-client-endpoint-loader.ts src/index.ts --dts"
+    "build": "tsup",
+    "dev": "tsup --watch"
   },
   "keywords": [],
   "author": "",
