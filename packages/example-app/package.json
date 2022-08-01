@@ -8,7 +8,8 @@
     "start": "next start",
     "dev": "next dev --port=3002",
     "prepare-env:test": "playwright install --with-deps",
-    "test": "playwright test"
+    "test": "playwright test",
+    "vercel-build": "pnpm run -w build"
   },
   "keywords": [],
   "author": "",
