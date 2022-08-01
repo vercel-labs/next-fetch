@@ -34,16 +34,12 @@ export function withSwrApiEndpoints(given: NextConfig = {}): NextConfig {
   return {
     ...given,
     webpack(config, context) {
-      const r = eval("require");
-      const serverLoader = r.resolve("./swr-server-endpoint-loader");
-      const pageLoader = r.resolve("./swr-client-endpoint-loader");
-
       config.module.rules.unshift({
         test: testRegex,
         ...(context.nextRuntime !== "edge" && { issuerLayer: "api" }),
         use: [
           {
-            loader: serverLoader,
+            loader: "next-swr-endpoints/server-loader",
             options: { nextRuntime: context.nextRuntime },
           },
           context.defaultLoaders.babel,
@@ -53,7 +49,7 @@ export function withSwrApiEndpoints(given: NextConfig = {}): NextConfig {
         test: testRegex,
         use: [
           {
-            loader: pageLoader,
+            loader: "next-swr-endpoints/client-loader",
             options: {
               projectDir: context.dir,
               pageExtensionsRegex: testRegex,

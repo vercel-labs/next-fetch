@@ -1,0 +1,5 @@
+{
+  "main": "../dist/swr-client-endpoint-loader.js",
+  "module": "../dist/swr-client-endpoint-loader.mjs",
+  "types": "../dist/swr-client-endpoint-loader.d.ts"
+}

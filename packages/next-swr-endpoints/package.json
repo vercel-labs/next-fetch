@@ -7,8 +7,10 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "files": [
-    "./dist/**/*",
+    "./client-loader/package.json",
     "./client/package.json",
+    "./dist/**/*",
+    "./server-loader/package.json",
     "./server/package.json"
   ],
   "scripts": {
