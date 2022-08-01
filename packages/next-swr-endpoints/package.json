@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
   "files": [
-    "./dist/**/*"
+    "./dist/**/*",
+    "./client/package.json",
+    "./server/package.json"
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",

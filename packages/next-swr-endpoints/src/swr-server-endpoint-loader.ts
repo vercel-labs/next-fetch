@@ -19,15 +19,18 @@ const loader: LoaderDefinition<{ nextRuntime?: "edge" | "nodejs" }> = function (
     parsed.regionsToRemove
   );
 
+  const handler =
+    nextRuntime === "edge" ? getEdgeFunctionCode() : getNodejsCode();
+
   const output = `
     ${source.source()}
+
+    /**/;
 
     const queries = ${stringifyQueries(parsed.queries)};
     const mutations = ${stringifyQueries(parsed.mutations)};
 
-    export default ${
-      nextRuntime === "edge" ? getEdgeFunctionCode() : getNodejsCode()
-    };
+    export default ${handler}
   `;
 
   return output;
@@ -35,57 +38,16 @@ const loader: LoaderDefinition<{ nextRuntime?: "edge" | "nodejs" }> = function (
 
 function getNodejsCode() {
   return `
-    async (req, res) => {
-      const bag = req.method.toUpperCase() === 'POST' ? mutations : queries;
-      const handler = bag.get(req.query.__handler);
-      delete req.query.__handler;
-
-      if (!handler) {
-        return res
-          .status(400)
-          .send(\`Unknown handler \${req.query.__handler}. Available handlers: \${Object.keys(bag).join(", ")}\`);
-      }
-
-      const { parser, callback } = handler;
-      let data;
-      try {
-        data = await (parser.parse ?? parser.parseAsync)(bag === mutations ? req.body : req.query);
-      } catch (e) {
-        return res.status(400).send(e.message);
-      }
-
-      const response = await callback(data);
-      return res.send(JSON.stringify(response));
-    }
+    async (req, res) => handleNodejsFunction({ queries, mutations, req, res });
+    import { handleNodejsFunction } from 'next-swr-endpoints/server';
   `.trim();
 }
 
 function getEdgeFunctionCode() {
   return `
-    async (req) => {
-      const url = req.nextUrl.clone();
-      const bag = req.method.toUpperCase() === 'POST' ? mutations : queries;
-      const handler = bag.get(url.searchParams.get('__handler'));
-      url.searchParams.delete('__handler');
-
-      if (!handler) {
-        return new Response("unknown handler", { status: 400 });
-      }
-
-      const { parser, callback } = handler;
-
-      try {
-        data = await (parser.parse ?? parser.parseAsync)(bag === mutations ? req.body : req.query);
-      } catch (e) {
-        return new Response(e.message, { status: 500 });
-      }
-
-      const response = await callback(data);
-      return __NextResponse__.json(response);
-    };
-
-    import { NextResponse as __NextResponse__ } from 'next/server';
-  `;
+    async (request) => handleEdgeFunction({ queries, mutations, request });
+    import { handleEdgeFunction } from 'next-swr-endpoints/server';
+  `.trim();
 }
 
 function stringifyQueries(queries: Queries): string {

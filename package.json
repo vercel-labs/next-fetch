@@ -4,9 +4,10 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "test": "turbo run test"
+    "build": "pnpm turbo run build",
+    "dev": "pnpm turbo run dev",
+    "test": "pnpm turbo run test",
+    "turbo": "FORCE_COLOR=1 turbo"
   },
   "packageManager": "pnpm@7.3.0",
   "keywords": [],

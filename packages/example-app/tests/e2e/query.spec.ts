@@ -5,3 +5,9 @@ test("basic test", async ({ page }) => {
   const title = page.locator("#result");
   await expect(title).toHaveText("Hello, gal :D");
 });
+
+test("edge runtime", async ({ page }) => {
+  await page.goto("/edge");
+  const title = page.locator("#result");
+  await expect(title).toHaveText("gal, EdgeRuntime = edge-runtime");
+});

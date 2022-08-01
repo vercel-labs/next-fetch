@@ -4,7 +4,7 @@ import { RawSource } from "webpack-sources";
 import prettier from "prettier";
 import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 
-test("does not remove config export", () => {
+test("finds all the exported handlers", () => {
   const input = `
     import { query, mutation } from 'next-swr-endpoints';
 
@@ -50,10 +50,6 @@ test("does not remove config export", () => {
     .trim();
 
   expect(formattedCode).toMatchInlineSnapshot(`
-      "import { query, mutation } from \\"next-swr-endpoints\\";
-
-      export const config = {
-        runtime: \\"experimental-edge\\",
-      };"
+      "import { query, mutation } from \\"next-swr-endpoints\\";"
     `);
 });

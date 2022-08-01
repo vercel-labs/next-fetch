@@ -37,11 +37,13 @@ export function withSwrApiEndpoints(given: NextConfig = {}): NextConfig {
   return {
     ...given,
     webpack(config, context) {
-      const serverLoader = require.resolve("./swr-server-endpoint-loader");
-      const pageLoader = require.resolve("./swr-client-endpoint-loader");
+      const r = eval("require");
+      const serverLoader = r.resolve("./swr-server-endpoint-loader");
+      const pageLoader = r.resolve("./swr-client-endpoint-loader");
+
       config.module.rules.unshift({
         test: testRegex,
-        issuerLayer: "api",
+        ...(context.nextRuntime !== "edge" && { issuerLayer: "api" }),
         use: [
           {
             loader: serverLoader,

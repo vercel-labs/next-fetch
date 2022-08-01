@@ -1,7 +1,7 @@
-import { useAllPeople } from "./api/people.swr";
+import { useRuntimeInfo } from "./api/edge.swr";
 
 export default function Home() {
-  const result = useAllPeople({ name: "gal" });
+  const result = useRuntimeInfo({ name: "gal" });
 
   return (
     <div id="result">
