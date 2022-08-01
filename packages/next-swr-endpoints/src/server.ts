@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { type NextRequest, NextResponse } from "next/server";
-import type { Parser } from "./types";
+import { type Parser, parse } from "./parser";
 
 type Handler<Input, Output> = {
   parser: Parser<Input>;
@@ -46,12 +46,6 @@ export async function handleEdgeFunction({
 
   const response = await callback(data);
   return NextResponse.json(response);
-}
-
-function parse<T>(parser: Parser<T>, data: unknown): Promise<T> {
-  return Promise.resolve(
-    ("parse" in parser ? parser.parse : parser.parseAsync)(data)
-  );
 }
 
 export async function handleNodejsFunction({

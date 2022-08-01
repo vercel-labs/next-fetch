@@ -1,7 +1,7 @@
 import type { SWRResponse } from "swr";
 import type { SWRMutationResponse } from "swr/mutation";
 import type { NextConfig } from "next";
-import type { Parser } from "./types";
+import type { Parser } from "./parser";
 
 export function query<T, V>(
   parser: Parser<T>,
