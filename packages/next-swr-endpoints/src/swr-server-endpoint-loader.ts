@@ -1,57 +1,54 @@
 import type { LoaderDefinition } from "webpack";
-import { ReplaceSource, SourceMapSource } from "webpack-sources";
+import { SourceMapSource } from "webpack-sources";
+import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 import { parseEndpointFile, type Queries } from "./parseEndpointFile";
 
-const loader: LoaderDefinition = function (
+const loader: LoaderDefinition<{ nextRuntime?: "edge" | "nodejs" }> = function (
   content,
   sourcemaps,
   _additionalData
 ) {
-  const source = new ReplaceSource(
+  const { nextRuntime } = this.getOptions();
+  const parsed = parseEndpointFile(content);
+  const source = cleanRegionsFromSource(
     new SourceMapSource(
       content,
       this.resourcePath,
       typeof sourcemaps === "string" ? JSON.parse(sourcemaps) : sourcemaps
-    )
+    ),
+    parsed.regionsToRemove
   );
 
-  const parsed = parseEndpointFile(content);
-  for (const [start, end] of parsed.regionsToRemove) {
-    source.replace(start, end, "");
-  }
+  const handler =
+    nextRuntime === "edge" ? getEdgeFunctionCode() : getNodejsCode();
 
   const output = `
     ${source.source()}
 
+    /**/;
+
     const queries = ${stringifyQueries(parsed.queries)};
     const mutations = ${stringifyQueries(parsed.mutations)};
 
-    export default async (req, res) => {
-      const bag = req.method.toUpperCase() === 'POST' ? mutations : queries;
-      const handler = bag.get(req.query.__handler);
-      delete req.query.__handler;
-
-      if (!handler) {
-        return res
-          .status(400)
-          .send(\`Unknown handler \${req.query.__handler}. Available handlers: \${Object.keys(bag).join(", ")}\`);
-      }
-
-      const { parser, callback } = handler;
-      let data;
-      try {
-        data = await (parser.parse ?? parser.parseAsync)(bag === mutations ? req.body : req.query);
-      } catch (e) {
-        return res.status(400).send(e.message);
-      }
-
-      const response = await callback(data);
-      return res.send(JSON.stringify(response));
-    };
+    export default ${handler}
   `;
 
   return output;
 };
+
+function getNodejsCode() {
+  return `
+    async (req, res) => handleNodejsFunction({ queries, mutations, req, res });
+    import { handleNodejsFunction } from 'next-swr-endpoints/server';
+  `.trim();
+}
+
+function getEdgeFunctionCode() {
+  return `
+    async (request) => handleEdgeFunction({ queries, mutations, request });
+    import { handleEdgeFunction } from 'next-swr-endpoints/server';
+  `.trim();
+}
 
 function stringifyQueries(queries: Queries): string {
   const queryArrays = Object.entries(queries).map(

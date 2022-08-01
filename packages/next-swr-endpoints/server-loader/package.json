@@ -1,0 +1,5 @@
+{
+  "main": "../dist/swr-server-endpoint-loader.js",
+  "module": "../dist/swr-server-endpoint-loader.mjs",
+  "types": "../dist/swr-server-endpoint-loader.d.ts"
+}

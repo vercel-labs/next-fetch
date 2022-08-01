@@ -1,7 +1,5 @@
 import { defineConfig } from "tsup";
 
-const isProduction = process.env.NODE_ENV === "production";
-
 export default defineConfig({
   clean: true,
   dts: true,
@@ -9,9 +7,12 @@ export default defineConfig({
     "src/index.ts",
     "src/swr-client-endpoint-loader.ts",
     "src/swr-server-endpoint-loader.ts",
+    "src/client.ts",
+    "src/server.ts",
   ],
-  format: ["cjs"],
-  minify: isProduction,
+  external: ["next/server"],
+  format: ["cjs", "esm"],
+  minify: process.env.NODE_ENV === "production",
   sourcemap: true,
   target: "node16",
 });

@@ -1,12 +1,8 @@
 import type { LoaderDefinition } from "webpack";
 import { parseEndpointFile } from "./parseEndpointFile";
-import {
-  ConcatSource,
-  OriginalSource,
-  ReplaceSource,
-  SourceMapSource,
-} from "webpack-sources";
+import { ConcatSource, OriginalSource, SourceMapSource } from "webpack-sources";
 import path from "path";
+import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 
 const loader: LoaderDefinition<{
   projectDir: string;
@@ -22,11 +18,8 @@ const loader: LoaderDefinition<{
           this.resourcePath,
           typeof sourcemaps === "string" ? JSON.parse(sourcemaps) : sourcemaps
         );
-  const source = new ReplaceSource(originalSource);
   const parsed = parseEndpointFile(content);
-  for (const [start, end] of parsed.regionsToRemove) {
-    source.replace(start, end, "");
-  }
+  const source = cleanRegionsFromSource(originalSource, parsed.regionsToRemove);
 
   const resource = path
     .relative(projectDir, this.resourcePath)
@@ -37,12 +30,11 @@ const loader: LoaderDefinition<{
   const queryExports = Object.keys(parsed.queries).map((name) => {
     return `
       export function ${name}(arg, opts = {}) {
-        const searchParams = new URLSearchParams(arg);
-        searchParams.set('__handler', ${JSON.stringify(name)});
+        const searchParams = buildUrlSearchParams(${JSON.stringify(name)}, arg);
         return useSWR(${JSON.stringify(
           apiPage
         )} + '?' + searchParams.toString(), {
-          fetcher: __queryFetcher,
+          fetcher: queryFetcher,
           ...opts,
         });
       }
@@ -52,49 +44,23 @@ const loader: LoaderDefinition<{
   const mutationExports = Object.keys(parsed.mutations).map((name) => {
     return `
       export function ${name}(opts = {}) {
-        const searchParams = new URLSearchParams();
-        searchParams.set('__handler', ${JSON.stringify(name)});
+        const searchParams = buildUrlSearchParams(${JSON.stringify(name)}, {});
         return useSWRMutation(${JSON.stringify(
           apiPage
         )} + '?' + searchParams.toString(), {
-          fetcher: __mutationFetcher,
+          fetcher: mutationFetcher,
           ...opts,
         });
       }
     `;
   });
 
-  const queryFetcher = `
-    async function __queryFetcher(url) {
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error("Response with status \${response.status} is not ok.");
-      }
-      return response.json();
-    }
-  `;
-
-  const mutationFetcher = `
-    async function __mutationFetcher(url, { arg }) {
-      const response = await fetch(url, {
-        method: 'POST',
-        body: JSON.stringify(arg),
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      })
-      if (!response.ok) {
-        throw new Error("Response with status \${response.status} is not ok.");
-      }
-      return response.json();
-    }
-  `;
-
   const concat = new ConcatSource(
     source,
     `\n/**/;`,
     'import useSWR from "swr";',
     'import useSWRMutation from "swr/mutation";',
-    queryFetcher,
-    mutationFetcher,
+    'import { mutationFetcher, queryFetcher, buildUrlSearchParams } from "next-swr-endpoints/client";',
     queryExports.join("\n\n"),
     mutationExports.join("\n\n")
   );

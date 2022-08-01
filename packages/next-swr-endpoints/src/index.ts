@@ -1,10 +1,7 @@
 import type { SWRResponse } from "swr";
 import type { SWRMutationResponse } from "swr/mutation";
 import type { NextConfig } from "next";
-
-type Parser<Into> =
-  | { parse(arg: unknown): Into }
-  | { parseAsync(arg: unknown): Promise<Into> };
+import type { Parser } from "./parser";
 
 export function query<T, V>(
   parser: Parser<T>,
@@ -37,18 +34,22 @@ export function withSwrApiEndpoints(given: NextConfig = {}): NextConfig {
   return {
     ...given,
     webpack(config, context) {
-      const serverLoader = require.resolve("./swr-server-endpoint-loader");
-      const pageLoader = require.resolve("./swr-client-endpoint-loader");
       config.module.rules.unshift({
         test: testRegex,
-        issuerLayer: "api",
-        use: [serverLoader, context.defaultLoaders.babel],
+        ...(context.nextRuntime !== "edge" && { issuerLayer: "api" }),
+        use: [
+          {
+            loader: "next-swr-endpoints/server-loader",
+            options: { nextRuntime: context.nextRuntime },
+          },
+          context.defaultLoaders.babel,
+        ],
       });
       config.module.rules.unshift({
         test: testRegex,
         use: [
           {
-            loader: pageLoader,
+            loader: "next-swr-endpoints/client-loader",
             options: {
               projectDir: context.dir,
               pageExtensionsRegex: testRegex,

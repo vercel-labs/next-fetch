@@ -6,6 +6,7 @@ type ParsedQuery = {
   callbackCode: string;
 };
 export type Queries = { [name: string]: ParsedQuery };
+
 export function parseEndpointFile(content: string): {
   queries: Queries;
   mutations: Queries;
@@ -31,11 +32,12 @@ export function parseEndpointFile(content: string): {
             parserCode: content.slice(parser.start, parser.end),
             callbackCode: content.slice(callback.start, callback.end),
           };
-
-          break;
+        } else if (declaration.id.name === "config") {
+        } else {
+          errors.push(
+            `Declaration at ${declaration.id.name} must be a query or mutation`
+          );
         }
-
-        errors.push(`Declaration at ${declaration.id.name} is wrong`);
       }
 
       regionsToRemove.push([node.start, node.end]);
