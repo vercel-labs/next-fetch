@@ -1,10 +1,7 @@
 import type { SWRResponse } from "swr";
 import type { SWRMutationResponse } from "swr/mutation";
 import type { NextConfig } from "next";
-
-type Parser<Into> =
-  | { parse(arg: unknown): Into }
-  | { parseAsync(arg: unknown): Promise<Into> };
+import type { Parser } from "./types";
 
 export function query<T, V>(
   parser: Parser<T>,
