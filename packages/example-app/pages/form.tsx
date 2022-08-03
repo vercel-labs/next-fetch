@@ -1,6 +1,6 @@
 import { useListPeopleWith } from "./api/people.swr";
 
-export default function Page() {
+export default function Page(props: { runtime: string }) {
   const listPeopleWith = useListPeopleWith();
 
   return (
@@ -31,6 +31,15 @@ export default function Page() {
           })}
         </ul>
       )}
+      <p>Rendered on {props.runtime}</p>
     </div>
   );
 }
+
+export const getServerSideProps = () => {
+  return {
+    props: {
+      runtime: `Node ${process.version}`,
+    },
+  };
+};

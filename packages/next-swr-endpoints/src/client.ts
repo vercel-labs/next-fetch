@@ -1,3 +1,6 @@
+import useSWR, { type SWRConfiguration } from "swr";
+import useSWRMutation, { type SWRMutationConfiguration } from "swr/mutation";
+
 /**
  * The fetcher implementation for `mutation` calls.
  */
@@ -40,4 +43,23 @@ export function buildUrlSearchParams(
   }
   sp.set("__handler", handler);
   return sp;
+}
+
+export function createQueryHook(url: string, handlerName: string) {
+  return (args: Record<string, unknown>, opts?: SWRConfiguration) => {
+    const searchParams = buildUrlSearchParams(handlerName, args);
+    return useSWR(`${url}?${searchParams}`, {
+      fetcher: queryFetcher,
+      ...opts,
+    });
+  };
+}
+
+export function createMutationHook(url: string, handlerName: string) {
+  return (opts?: SWRMutationConfiguration<unknown, unknown>) => {
+    const searchParams = buildUrlSearchParams(handlerName, {});
+    return useSWRMutation(`${url}?${searchParams}`, mutationFetcher, {
+      ...opts,
+    });
+  };
 }

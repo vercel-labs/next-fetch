@@ -1,8 +1,6 @@
 import z from "zod";
 import { mutation, query } from "next-swr-endpoints";
 
-declare const EdgeRuntime: string;
-
 export const config = { runtime: "experimental-edge" };
 
 export const useRuntimeInfo = query(
