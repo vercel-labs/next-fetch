@@ -1,6 +1,8 @@
 import { useRuntimeInfoMutation } from "./api/edge.swr";
 
-export default function Page() {
+export const config = { runtime: "experimental-edge" };
+
+export default function Page(props: { runtime: string }) {
   const listPeopleWith = useRuntimeInfoMutation();
 
   return (
@@ -31,6 +33,15 @@ export default function Page() {
           })}
         </ul>
       )}
+      <p>Rendered on {props.runtime}</p>
     </div>
   );
 }
+
+export const getServerSideProps = async () => {
+  return {
+    props: {
+      runtime: String(EdgeRuntime),
+    },
+  };
+};
