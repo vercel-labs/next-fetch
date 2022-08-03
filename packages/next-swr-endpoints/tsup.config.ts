@@ -10,9 +10,9 @@ export default defineConfig({
     "src/client.ts",
     "src/server.ts",
   ],
-  external: ["next/server"],
+  external: ["next/server", "swr", "swr/mutation"],
   format: ["cjs", "esm"],
   minify: process.env.NODE_ENV === "production",
   sourcemap: true,
-  target: "node16",
+  target: "esnext",
 });

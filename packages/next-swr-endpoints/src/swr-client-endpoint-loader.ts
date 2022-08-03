@@ -29,38 +29,23 @@ const loader: LoaderDefinition<{
 
   const queryExports = Object.keys(parsed.queries).map((name) => {
     return `
-      export function ${name}(arg, opts = {}) {
-        const searchParams = buildUrlSearchParams(${JSON.stringify(name)}, arg);
-        return useSWR(${JSON.stringify(
-          apiPage
-        )} + '?' + searchParams.toString(), {
-          fetcher: queryFetcher,
-          ...opts,
-        });
-      }
+      export const ${name} =
+        /*#__PURE__*/ createQueryHook(API_PAGE, ${JSON.stringify(name)});
     `;
   });
 
   const mutationExports = Object.keys(parsed.mutations).map((name) => {
     return `
-      export function ${name}(opts = {}) {
-        const searchParams = buildUrlSearchParams(${JSON.stringify(name)}, {});
-        return useSWRMutation(${JSON.stringify(
-          apiPage
-        )} + '?' + searchParams.toString(), {
-          fetcher: mutationFetcher,
-          ...opts,
-        });
-      }
+      export const ${name} =
+        /*#__PURE__*/ createMutationHook(API_PAGE, ${JSON.stringify(name)});
     `;
   });
 
   const concat = new ConcatSource(
     source,
     `\n/**/;`,
-    'import useSWR from "swr";',
-    'import useSWRMutation from "swr/mutation";',
-    'import { mutationFetcher, queryFetcher, buildUrlSearchParams } from "next-swr-endpoints/client";',
+    'import { createQueryHook, createMutationHook } from "next-swr-endpoints/client";',
+    `const API_PAGE = ${JSON.stringify(apiPage)}`,
     queryExports.join("\n\n"),
     mutationExports.join("\n\n")
   );

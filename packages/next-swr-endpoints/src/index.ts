@@ -49,6 +49,7 @@ export function withSwrApiEndpoints(given: NextConfig = {}): NextConfig {
       });
       config.module?.rules?.unshift({
         test: testRegex,
+        issuerLayer: { not: { or: ["api", "middleware"] } },
         use: [
           {
             loader: "next-swr-endpoints/client-loader",
