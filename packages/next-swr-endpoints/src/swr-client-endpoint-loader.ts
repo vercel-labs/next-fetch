@@ -1,25 +1,15 @@
 import type { LoaderDefinition } from "webpack";
 import { parseEndpointFile } from "./parseEndpointFile";
-import { ConcatSource, OriginalSource, SourceMapSource } from "webpack-sources";
+import { ConcatSource } from "webpack-sources";
 import path from "path";
-import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 
 const loader: LoaderDefinition<{
   projectDir: string;
   pageExtensionsRegex: RegExp;
   basePath: string;
-}> = function (content, sourcemaps, additionalData) {
+}> = function (content, _sourcemaps, additionalData) {
   const { projectDir, pageExtensionsRegex, basePath } = this.getOptions();
-  const originalSource =
-    typeof sourcemaps === "undefined"
-      ? new OriginalSource(content, this.resourcePath)
-      : new SourceMapSource(
-          content,
-          this.resourcePath,
-          typeof sourcemaps === "string" ? JSON.parse(sourcemaps) : sourcemaps
-        );
   const parsed = parseEndpointFile(content);
-  const source = cleanRegionsFromSource(originalSource, parsed.regionsToRemove);
 
   const resource = path
     .relative(projectDir, this.resourcePath)
@@ -42,10 +32,8 @@ const loader: LoaderDefinition<{
   });
 
   const concat = new ConcatSource(
-    source,
-    `\n/**/;`,
     'import { createQueryHook, createMutationHook } from "next-swr-endpoints/client";',
-    `const API_PAGE = ${JSON.stringify(apiPage)}`,
+    `const API_PAGE = ${JSON.stringify(apiPage)};`,
     queryExports.join("\n\n"),
     mutationExports.join("\n\n")
   );
