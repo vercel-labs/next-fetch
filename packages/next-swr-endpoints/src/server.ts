@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { type Parser, parse } from "./parser";
 
 export type RequestContext = {
-  request: Request;
+  request: NextRequest;
 };
 
 export type HandlerCallback<Input, Output> = (
@@ -90,7 +90,7 @@ export async function handleNodejsFunction({
   /**
    * A standard {@link Request} object that represents the current {@link NextApiRequest}
    */
-  let request: Request | null = null;
+  let request: NextRequest | null = null;
 
   const response = await callback.call(
     {
@@ -130,9 +130,14 @@ function getUnknownHandlerError(handlerName: string, handlers: Handlers) {
   ].join(", ")}`;
 }
 
-function createStandardRequestFromNodejsRequest(req: NextApiRequest): Request {
-  const host = process.env.VERCEL_URL ?? req.headers["x-forwarded-for"];
-  return new Request(req.url ?? "/", {
+function createStandardRequestFromNodejsRequest(
+  req: NextApiRequest
+): NextRequest {
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : `https://my-app`;
+  const url = new URL(req.url ?? "/", baseUrl);
+  return new NextRequest(url.toString(), {
     headers: Object.entries(req.headers).flatMap(([key, values]) => {
       if (Array.isArray(values)) {
         return values.map((value) => [key, value]);
