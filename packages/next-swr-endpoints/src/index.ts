@@ -3,7 +3,6 @@ import type { SWRMutationResponse } from "swr/mutation";
 import type { NextConfig } from "next";
 import type { Parser } from "./parser";
 import type { Configuration } from "webpack";
-import path from "path";
 
 export function query<T, V>(
   parser: Parser<T>,
