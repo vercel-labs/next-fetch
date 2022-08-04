@@ -1,5 +1,6 @@
 import z from "zod";
 import { query, mutation } from "next-swr-endpoints";
+import { userAgent } from "next/server";
 
 export const useAllPeople = query(
   z.object({ name: z.string() }),
@@ -10,7 +11,15 @@ export const useAllPeople = query(
 
 export const useListPeopleWith = mutation(
   z.object({ name: z.string() }),
-  async ({ name }) => {
-    return ["John", "Jane", "Bob", "Alice", name.trim()];
+  async function ({ name }) {
+    const agent = userAgent(this.request);
+    return [
+      agent.browser.name ?? "Unknown",
+      "John",
+      "Jane",
+      "Bob",
+      "Alice",
+      name.trim(),
+    ];
   }
 );
