@@ -1,4 +1,4 @@
-import { useAllPeople } from "../api/people.rq";
+import { useAllPeople } from "../api/rq/people.rq";
 
 export default function Home(props: { runtime: string }) {
   const result = useAllPeople({ name: "gal" });

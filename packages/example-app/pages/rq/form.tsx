@@ -1,4 +1,4 @@
-import { useListPeopleWith } from "../api/people.rq";
+import { useListPeopleWith } from "../api/rq/people.rq";
 
 export default function Page(props: { runtime: string }) {
   const listPeopleWith = useListPeopleWith();
