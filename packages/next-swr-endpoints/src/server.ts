@@ -1,10 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { type Parser, parse } from "./parser";
+
+export type RequestContext = {
+  request: NextRequest;
+};
+
+export type HandlerCallback<Input, Output> = (
+  this: RequestContext,
+  input: Input
+) => Promise<Output>;
 
 type Handler<Input, Output> = {
   parser: Parser<Input>;
-  callback: (t: Input) => Promise<Output>;
+  callback: HandlerCallback<Input, Output>;
 };
 type Handlers = Map<string, Handler<unknown, unknown>>;
 
@@ -44,7 +53,7 @@ export async function handleEdgeFunction({
     return new Response(e?.message || "Malformed input", { status: 400 });
   }
 
-  const response = await callback(data);
+  const response = await callback.call({ request }, data);
   return NextResponse.json(response);
 }
 
@@ -78,7 +87,22 @@ export async function handleNodejsFunction({
     return res.status(400).send(e?.message || "Malformed input");
   }
 
-  const response = await callback(data);
+  /**
+   * A standard {@link Request} object that represents the current {@link NextApiRequest}
+   */
+  let request: NextRequest | null = null;
+
+  const response = await callback.call(
+    {
+      get request() {
+        if (!request) {
+          request = createStandardRequestFromNodejsRequest(req);
+        }
+        return request;
+      },
+    },
+    data
+  );
   return res.send(JSON.stringify(response));
 }
 
@@ -104,4 +128,24 @@ function getUnknownHandlerError(handlerName: string, handlers: Handlers) {
   return `Unknown handler ${handlerName}. Available handlers: ${[
     ...handlers.keys(),
   ].join(", ")}`;
+}
+
+function createStandardRequestFromNodejsRequest(
+  req: NextApiRequest
+): NextRequest {
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : `https://my-app`;
+  const url = new URL(req.url ?? "/", baseUrl);
+  return new NextRequest(url.toString(), {
+    headers: Object.entries(req.headers).flatMap(([key, values]) => {
+      if (Array.isArray(values)) {
+        return values.map((value) => [key, value]);
+      } else if (values === undefined) {
+        return [];
+      }
+      return [[key, values]];
+    }),
+    method: req.method,
+  });
 }

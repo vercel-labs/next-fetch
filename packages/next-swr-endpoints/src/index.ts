@@ -3,18 +3,19 @@ import type { SWRMutationResponse } from "swr/mutation";
 import type { NextConfig } from "next";
 import type { Parser } from "./parser";
 import type { Configuration } from "webpack";
+import type { HandlerCallback } from "./server";
 
-export function query<T, V>(
-  parser: Parser<T>,
-  callback: (parsed: T) => Promise<V>
-): (v: T) => SWRResponse<V> {
+export function query<Input, Output>(
+  parser: Parser<Input>,
+  callback: HandlerCallback<Input, Output>
+): (v: Input) => SWRResponse<Output> {
   throw new Error("This code path should not be reached");
 }
 
-export function mutation<T, V>(
-  parser: Parser<T>,
-  callback: (parsed: T) => Promise<V>
-): () => SWRMutationResponse<V, any, T> {
+export function mutation<Input, Output>(
+  parser: Parser<Input>,
+  callback: HandlerCallback<Input, Output>
+): () => SWRMutationResponse<Output, any, Input> {
   throw new Error("This code path should not be reached");
 }
 
