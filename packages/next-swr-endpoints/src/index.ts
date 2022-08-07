@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 import type { Parser } from "./parser";
 import type { Configuration } from "webpack";
 import type { HandlerCallback, WithFormResolving } from "./server";
+import { HookMetadata } from "./client";
 
 export type QueryOptions<Output> = WithFormResolving<Output>;
 
@@ -11,7 +12,7 @@ export function query<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>,
   options?: Partial<WithFormResolving<Output>>
-): (v: Input) => SWRResponse<Output> {
+): ((v: Input) => SWRResponse<Output>) & { meta: HookMetadata } {
   throw new Error("This code path should not be reached");
 }
 
@@ -21,7 +22,9 @@ export function mutation<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>,
   options?: Partial<MutationOptions<Output>>
-): () => SWRMutationResponse<Output, any, Input> {
+): (() => SWRMutationResponse<Output, any, Input> & { meta: HookMetadata }) & {
+  meta: HookMetadata;
+} {
   throw new Error("This code path should not be reached");
 }
 

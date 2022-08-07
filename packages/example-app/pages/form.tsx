@@ -1,18 +1,13 @@
 import { useListPeopleWith } from "./api/people.swr";
+import { useForm } from "next-swr-endpoints/form";
 
 export default function Page(props: { runtime: string }) {
   const listPeopleWith = useListPeopleWith();
+  const { formProps } = useForm(listPeopleWith);
 
   return (
     <div>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          const name = new FormData(event.currentTarget).get("name");
-          if (!name) throw new Error("can't get name");
-          listPeopleWith.trigger({ name: String(name) });
-        }}
-      >
+      <form {...formProps}>
         <label>
           Name: <input type="text" name="name" placeholder="Enter a name..." />
         </label>
