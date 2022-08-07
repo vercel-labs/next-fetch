@@ -10,6 +10,6 @@ export type Parser<Into> =
 
 export function parse<T>(parser: Parser<T>, data: unknown): Promise<T> {
   return Promise.resolve(
-    ("parse" in parser ? parser.parse : parser.parseAsync)(data)
+    ("parseAsync" in parser ? parser.parseAsync : parser.parse)(data)
   );
 }
