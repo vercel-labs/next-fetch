@@ -6,6 +6,17 @@ test("basic test", async ({ page }) => {
   await expect(title).toHaveText("Hello, gal :D");
 });
 
+test("direct request to node.js", async ({ page }) => {
+  const response = await page.goto(
+    "/api/people?__handler=useAllPeople&name=Gal"
+  );
+  const text = await response?.text();
+  expect(text).toEqual("Hello, Gal :D");
+  await expect(response?.headerValue("x-direct-request")).resolves.toEqual(
+    "true"
+  );
+});
+
 test("edge runtime", async ({ page }) => {
   await page.goto("/edge");
   const title = page.locator("#result");

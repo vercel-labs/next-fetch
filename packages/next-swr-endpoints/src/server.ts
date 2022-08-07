@@ -85,6 +85,7 @@ export async function handleNodejsFunction({
   mutations: Handlers;
 }) {
   const bag = req.method?.toUpperCase() === "POST" ? mutations : queries;
+  const forceJsonResponse = req.headers.accept === "application/json+swr";
 
   const handler = bag.get(String(req.query.__handler));
   delete req.query.__handler;
@@ -107,18 +108,24 @@ export async function handleNodejsFunction({
    * A standard {@link Request} object that represents the current {@link NextApiRequest}
    */
   let request: NextRequest | null = null;
-
-  const response = await callback.call(
-    {
-      get request() {
-        if (!request) {
-          request = createStandardRequestFromNodejsRequest(req);
-        }
-        return request;
-      },
+  const context: RequestContext = {
+    get request() {
+      if (!request) {
+        request = createStandardRequestFromNodejsRequest(req);
+      }
+      return request;
     },
-    data
-  );
+  };
+
+  const response = await callback.call(context, data);
+
+  if (handler.options?.resolveFormSubmission && !forceJsonResponse) {
+    const manipulatedResponse =
+      await handler.options.resolveFormSubmission.call(context, response);
+    streamResponseResult(manipulatedResponse, res);
+    return;
+  }
+
   return res.send(JSON.stringify(response));
 }
 
@@ -164,4 +171,24 @@ function createStandardRequestFromNodejsRequest(
     }),
     method: req.method,
   });
+}
+
+function streamResponseResult(response: Response, res: NextApiResponse): void {
+  response.headers.forEach((value, key) => {
+    res.setHeader(key, value);
+  });
+
+  res.statusCode = response.status;
+
+  if (!response.body) {
+    res.end();
+    return;
+  }
+
+  if ("pipe" in response.body) {
+    // @ts-expect-error
+    response.body.pipe(res);
+  } else {
+    res.end(response.body);
+  }
 }

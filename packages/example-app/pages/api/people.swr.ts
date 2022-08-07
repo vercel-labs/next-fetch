@@ -6,6 +6,13 @@ export const useAllPeople = query(
   z.object({ name: z.string() }),
   async (user) => {
     return `Hello, ${user.name} :D`;
+  },
+  {
+    resolveFormSubmission(text) {
+      return new Response(text, {
+        headers: { "x-direct-request": "true" },
+      });
+    },
   }
 );
 
