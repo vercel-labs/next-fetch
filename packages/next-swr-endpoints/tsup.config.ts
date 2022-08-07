@@ -2,9 +2,7 @@ import { defineConfig } from "tsup";
 
 export default defineConfig({
   clean: true,
-  dts: {
-    resolve: [/next-api-endpoints-core-plugin/],
-  },
+  dts: true,
   entry: [
     "src/index.ts",
     "src/swr-client-endpoint-loader.ts",

@@ -9,6 +9,7 @@ export default defineConfig({
     "src/server-endpoint-loader.ts",
     "src/client.ts",
     "src/server.ts",
+    "src/parser.ts",
   ],
   external: ["next/server", "next"],
   format: ["cjs", "esm"],

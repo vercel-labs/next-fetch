@@ -22,12 +22,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/prettier": "^2.6.4",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5",
     "next": "^12.2.4",
     "next-api-endpoints-core-plugin": "workspace:^1.0.0",
-    "prettier": "^2.7.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "swr": "^2.0.0-beta.6",
