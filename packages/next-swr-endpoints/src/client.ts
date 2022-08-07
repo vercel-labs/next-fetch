@@ -8,7 +8,10 @@ export async function mutationFetcher(url: string, { arg }: { arg: unknown }) {
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify(arg),
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json+swr",
+    },
   });
   if (!response.ok) {
     throw new Error("Response with status ${response.status} is not ok.");
@@ -20,7 +23,9 @@ export async function mutationFetcher(url: string, { arg }: { arg: unknown }) {
  * The fetcher implementation for `mutation` calls.
  */
 export async function queryFetcher(url: string) {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: { Accept: "application/json+swr" },
+  });
   if (!response.ok) {
     throw new Error("Response with status ${response.status} is not ok.");
   }

@@ -2,6 +2,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { NextRequest, NextResponse } from "next/server";
 import { type Parser, parse } from "./parser";
 
+export type WithFormResolving<Output> = {
+  resolveFormSubmission(
+    this: RequestContext,
+    data: Output
+  ): Promise<Response> | Response;
+};
+
 export type RequestContext = {
   request: NextRequest;
 };
@@ -14,7 +21,9 @@ export type HandlerCallback<Input, Output> = (
 type Handler<Input, Output> = {
   parser: Parser<Input>;
   callback: HandlerCallback<Input, Output>;
+  options: Partial<WithFormResolving<Output>>;
 };
+
 type Handlers = Map<string, Handler<unknown, unknown>>;
 
 export async function handleEdgeFunction({
@@ -33,6 +42,8 @@ export async function handleEdgeFunction({
     return new Response("Missing __handler", { status: 400 });
   }
   const handler = bag.get(handlerName);
+  const forceJsonResponse =
+    request.headers.get("accept") === "application/json+swr";
   url.searchParams.delete("__handler");
 
   if (!handler) {
@@ -54,6 +65,11 @@ export async function handleEdgeFunction({
   }
 
   const response = await callback.call({ request }, data);
+
+  if (handler.options?.resolveFormSubmission && !forceJsonResponse) {
+    return handler.options.resolveFormSubmission.call({ request }, response);
+  }
+
   return NextResponse.json(response);
 }
 

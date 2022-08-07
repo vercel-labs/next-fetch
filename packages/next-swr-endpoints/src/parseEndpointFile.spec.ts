@@ -8,11 +8,15 @@ test("finds all the exported handlers", () => {
   const input = `
     import { query, mutation } from 'next-swr-endpoints';
 
-    export const useMyQuery = query({}, () => "Hello")
+    export const useMyQuery = query({}, () => "Hello", { something: 'else' })
       , config = {
           runtime: 'experimental-edge'
         }
-      , useMyMutation = mutation({}, () => "My mutation");
+      , useMyMutation = mutation(
+          {},
+          () => "My mutation",
+          { resolveFormSubmission: () => Response.redirect("/") }
+        );
 
     export const useMyOtherQuery = query({}, () => "Hello World");
   `.trim();
@@ -25,6 +29,7 @@ test("finds all the exported handlers", () => {
       useMyMutation: {
         callbackCode: `() => "My mutation"`,
         parserCode: `{}`,
+        optionsCode: `{ resolveFormSubmission: () => Response.redirect("/") }`,
       },
     },
     queries: {
@@ -35,6 +40,7 @@ test("finds all the exported handlers", () => {
       useMyQuery: {
         callbackCode: `() => "Hello"`,
         parserCode: `{}`,
+        optionsCode: `{ something: 'else' }`,
       },
     },
   });

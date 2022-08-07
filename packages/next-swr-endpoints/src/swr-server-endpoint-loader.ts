@@ -52,10 +52,12 @@ function getEdgeFunctionCode() {
 
 function stringifyQueries(queries: Queries): string {
   const queryArrays = Object.entries(queries).map(
-    ([name, { parserCode, callbackCode }]) => {
+    ([name, { parserCode, callbackCode, optionsCode }]) => {
       return `[${JSON.stringify(
         name
-      )}, { parser: ${parserCode}, callback: ${callbackCode} }]`;
+      )}, { parser: ${parserCode}, callback: ${callbackCode}, options: ${
+        optionsCode ?? "{}"
+      } }]`;
     }
   );
   return `new Map([${queryArrays.join(", ")}])`;
