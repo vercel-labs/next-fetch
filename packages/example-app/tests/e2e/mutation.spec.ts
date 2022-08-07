@@ -28,3 +28,41 @@ test("edge runtime", async ({ page }) => {
   await expect(list.nth(1)).toHaveText("input: Gal");
   await expect(list.nth(2)).toHaveText("request browser: Chrome");
 });
+
+test.describe("without javascript enabled", () => {
+  test.use({
+    javaScriptEnabled: false,
+  });
+
+  test("nodejs runtime", async ({ page }) => {
+    await page.goto("/form");
+    const result = page.locator("#result");
+    await expect(result).toHaveText("No data, idle.");
+
+    const input = page.locator(`input[type="text"]`);
+    await input.type("Gal");
+    await input.press("Enter");
+
+    await expect(page.locator("body")).toHaveText(
+      JSON.stringify(["Chrome", "John", "Jane", "Bob", "Alice", "Gal"])
+    );
+  });
+
+  test("edge runtime", async ({ page }) => {
+    await page.goto("/form-edge");
+    const result = page.locator("#result");
+    await expect(result).toHaveText("No data, idle.");
+
+    const input = page.locator(`input[type="text"]`);
+    await input.type("Gal");
+    await input.press("Enter");
+
+    await expect(page.locator("body")).toHaveText(
+      JSON.stringify([
+        "runtime: edge-runtime",
+        "input: Gal",
+        "request browser: Chrome",
+      ])
+    );
+  });
+});

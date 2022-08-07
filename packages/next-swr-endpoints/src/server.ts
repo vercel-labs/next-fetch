@@ -57,7 +57,7 @@ export async function handleEdgeFunction({
     data = await parse(
       parser,
       bag === mutations
-        ? await request.json()
+        ? await getRequestBody(request)
         : fromSearchParamToObject(url.searchParams)
     );
   } catch (e: any) {
@@ -71,6 +71,16 @@ export async function handleEdgeFunction({
   }
 
   return NextResponse.json(response);
+}
+
+async function getRequestBody(request: Request): Promise<unknown> {
+  if (
+    request.headers.get("content-type") === "application/x-www-form-urlencoded"
+  ) {
+    return fromSearchParamToObject(new URLSearchParams(await request.text()));
+  }
+
+  return await request.json();
 }
 
 export async function handleNodejsFunction({
