@@ -28,5 +28,10 @@ export const useListPeopleWith = mutation(
       "Alice",
       name.trim(),
     ];
+  },
+  {
+    resolveFormSubmission(data) {
+      return new Response(`response is: ${JSON.stringify(data)}`);
+    },
   }
 );

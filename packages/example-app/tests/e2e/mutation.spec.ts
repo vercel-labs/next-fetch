@@ -44,7 +44,8 @@ test.describe("without javascript enabled", () => {
     await input.press("Enter");
 
     await expect(page.locator("body")).toHaveText(
-      JSON.stringify(["Chrome", "John", "Jane", "Bob", "Alice", "Gal"])
+      "response is: " +
+        JSON.stringify(["Chrome", "John", "Jane", "Bob", "Alice", "Gal"])
     );
   });
 
@@ -58,11 +59,12 @@ test.describe("without javascript enabled", () => {
     await input.press("Enter");
 
     await expect(page.locator("body")).toHaveText(
-      JSON.stringify([
-        "runtime: edge-runtime",
-        "input: Gal",
-        "request browser: Chrome",
-      ])
+      "response is: " +
+        JSON.stringify([
+          "runtime: edge-runtime",
+          "input: Gal",
+          "request browser: Chrome",
+        ])
     );
   });
 });

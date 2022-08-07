@@ -26,5 +26,10 @@ export const useRuntimeInfoMutation = mutation(
       `input: ${name}`,
       `request browser: ${userAgent(this.request).browser?.name}`,
     ];
+  },
+  {
+    resolveFormSubmission(data) {
+      return new Response(`response is: ${JSON.stringify(data)}`);
+    },
   }
 );
