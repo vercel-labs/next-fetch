@@ -8,6 +8,13 @@ export const useRuntimeInfo = query(
   z.object({ name: z.string() }),
   async ({ name }) => {
     return `${name}, EdgeRuntime = ${EdgeRuntime}`;
+  },
+  {
+    hookResponse(text) {
+      return new Response(text, {
+        headers: { "x-direct-request": "true" },
+      });
+    },
   }
 );
 
@@ -19,5 +26,10 @@ export const useRuntimeInfoMutation = mutation(
       `input: ${name}`,
       `request browser: ${userAgent(this.request).browser?.name}`,
     ];
+  },
+  {
+    hookResponse(data) {
+      return new Response(`response is: ${JSON.stringify(data)}`);
+    },
   }
 );

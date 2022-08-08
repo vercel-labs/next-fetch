@@ -1,4 +1,5 @@
 import { useRuntimeInfoMutation } from "./api/edge.swr";
+import { Form } from "next-swr-endpoints/form";
 
 export const config = { runtime: "experimental-edge" };
 
@@ -7,21 +8,14 @@ export default function Page(props: { runtime: string }) {
 
   return (
     <div>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          const name = new FormData(event.currentTarget).get("name");
-          if (!name) throw new Error("can't get name");
-          listPeopleWith.trigger({ name: String(name) });
-        }}
-      >
+      <Form mutation={listPeopleWith}>
         <label>
           Name: <input type="text" name="name" placeholder="Enter a name..." />
         </label>
         <button type="submit" tabIndex={0}>
           Submit
         </button>
-      </form>
+      </Form>
       {!listPeopleWith.data ? (
         <p id="result">
           No data, {listPeopleWith.isMutating ? "mutating" : "idle"}.

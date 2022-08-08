@@ -8,7 +8,10 @@ export async function mutationFetcher(url: string, { arg }: { arg: unknown }) {
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify(arg),
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json+swr",
+    },
   });
   if (!response.ok) {
     throw new Error("Response with status ${response.status} is not ok.");
@@ -20,7 +23,9 @@ export async function mutationFetcher(url: string, { arg }: { arg: unknown }) {
  * The fetcher implementation for `mutation` calls.
  */
 export async function queryFetcher(url: string) {
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: { Accept: "application/json+swr" },
+  });
   if (!response.ok) {
     throw new Error("Response with status ${response.status} is not ok.");
   }
@@ -45,21 +50,38 @@ export function buildUrlSearchParams(
   return sp;
 }
 
-export function createQueryHook(url: string, handlerName: string) {
-  return (args: Record<string, unknown>, opts?: SWRConfiguration) => {
-    const searchParams = buildUrlSearchParams(handlerName, args);
-    return useSWR(`${url}?${searchParams}`, {
-      fetcher: queryFetcher,
-      ...opts,
-    });
-  };
+export function createQueryHook(baseUrl: string, handlerName: string) {
+  return hook(
+    { baseUrl, handlerName, method: "get" },
+    (args: Record<string, unknown>, opts?: SWRConfiguration) => {
+      const searchParams = buildUrlSearchParams(handlerName, args);
+      return useSWR(`${baseUrl}?${searchParams}`, {
+        fetcher: queryFetcher,
+        ...opts,
+      });
+    }
+  );
 }
 
-export function createMutationHook(url: string, handlerName: string) {
-  return (opts?: SWRMutationConfiguration<unknown, unknown>) => {
+export function createMutationHook(baseUrl: string, handlerName: string) {
+  const meta: HookMetadata = { baseUrl, handlerName, method: "post" };
+  return hook(meta, (opts?: SWRMutationConfiguration<unknown, unknown>) => {
     const searchParams = buildUrlSearchParams(handlerName, {});
-    return useSWRMutation(`${url}?${searchParams}`, mutationFetcher, {
-      ...opts,
-    });
-  };
+    return hook(
+      meta,
+      useSWRMutation(`${baseUrl}?${searchParams}`, mutationFetcher, {
+        ...opts,
+      })
+    );
+  });
+}
+
+export type HookMetadata = {
+  baseUrl: string;
+  handlerName: string;
+  method: string;
+};
+
+function hook<T>(meta: HookMetadata, t: T): T & { meta: HookMetadata } {
+  return Object.assign(t, { meta });
 }

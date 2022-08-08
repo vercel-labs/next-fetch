@@ -4,6 +4,7 @@ import { simple } from "acorn-walk";
 type ParsedQuery = {
   parserCode: string;
   callbackCode: string;
+  optionsCode?: string;
 };
 export type Queries = { [name: string]: ParsedQuery };
 
@@ -25,12 +26,15 @@ export function parseEndpointFile(content: string): {
           ["query", "mutation"].includes(declaration.init.callee?.name)
         ) {
           const name = declaration.id;
-          const [parser, callback] = declaration.init.arguments;
+          const [parser, callback, options] = declaration.init.arguments;
           const bag =
             "query" === declaration.init.callee.name ? queries : mutations;
           bag[content.slice(name.start, name.end)] = {
             parserCode: content.slice(parser.start, parser.end),
             callbackCode: content.slice(callback.start, callback.end),
+            ...(options && {
+              optionsCode: content.slice(options.start, options.end),
+            }),
           };
         } else if (declaration.id.name === "config") {
         } else {
