@@ -10,7 +10,7 @@ export const useRuntimeInfo = query(
     return `${name}, EdgeRuntime = ${EdgeRuntime}`;
   },
   {
-    resolveFormSubmission(text) {
+    hookResponse(text) {
       return new Response(text, {
         headers: { "x-direct-request": "true" },
       });
@@ -28,7 +28,7 @@ export const useRuntimeInfoMutation = mutation(
     ];
   },
   {
-    resolveFormSubmission(data) {
+    hookResponse(data) {
       return new Response(`response is: ${JSON.stringify(data)}`);
     },
   }

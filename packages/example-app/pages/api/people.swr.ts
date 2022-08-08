@@ -8,7 +8,7 @@ export const useAllPeople = query(
     return `Hello, ${user.name} :D`;
   },
   {
-    resolveFormSubmission(text) {
+    hookResponse(text) {
       return new Response(text, {
         headers: { "x-direct-request": "true" },
       });
@@ -30,7 +30,7 @@ export const useListPeopleWith = mutation(
     ];
   },
   {
-    resolveFormSubmission(data) {
+    hookResponse(data) {
       return new Response(`response is: ${JSON.stringify(data)}`);
     },
   }

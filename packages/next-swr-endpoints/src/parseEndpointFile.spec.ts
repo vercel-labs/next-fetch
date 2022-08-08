@@ -15,7 +15,7 @@ test("finds all the exported handlers", () => {
       , useMyMutation = mutation(
           {},
           () => "My mutation",
-          { resolveFormSubmission: () => Response.redirect("/") }
+          { hookResponse: () => Response.redirect("/") }
         );
 
     export const useMyOtherQuery = query({}, () => "Hello World");
@@ -29,7 +29,7 @@ test("finds all the exported handlers", () => {
       useMyMutation: {
         callbackCode: `() => "My mutation"`,
         parserCode: `{}`,
-        optionsCode: `{ resolveFormSubmission: () => Response.redirect("/") }`,
+        optionsCode: `{ hookResponse: () => Response.redirect("/") }`,
       },
     },
     queries: {

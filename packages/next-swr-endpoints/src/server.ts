@@ -2,10 +2,22 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { NextRequest, NextResponse } from "next/server";
 import { type Parser, parse } from "./parser";
 
-export type WithFormResolving<Output> = {
-  resolveFormSubmission(
+export type HookIntoResponse<Output> = {
+  /**
+   * A hook to return a custom Response, when the request is handled
+   * for a direct request (form submissions, user navigations, etc)
+   *
+   * @example
+   * ```ts
+   * hookResponse(output) {
+   *   const newUrl = new URL(`/users/${output.id}`, this.request.url);
+   *   return Response.redirect(newUrl.toString())
+   * }
+   * ```
+   */
+  hookResponse(
     this: RequestContext,
-    data: Output
+    output: Output
   ): Promise<Response> | Response;
 };
 
@@ -21,7 +33,7 @@ export type HandlerCallback<Input, Output> = (
 type Handler<Input, Output> = {
   parser: Parser<Input>;
   callback: HandlerCallback<Input, Output>;
-  options: Partial<WithFormResolving<Output>>;
+  options: Partial<HookIntoResponse<Output>>;
 };
 
 type Handlers = Map<string, Handler<unknown, unknown>>;
@@ -66,8 +78,8 @@ export async function handleEdgeFunction({
 
   const response = await callback.call({ request }, data);
 
-  if (handler.options?.resolveFormSubmission && !forceJsonResponse) {
-    return handler.options.resolveFormSubmission.call({ request }, response);
+  if (handler.options?.hookResponse && !forceJsonResponse) {
+    return handler.options.hookResponse.call({ request }, response);
   }
 
   return NextResponse.json(response);
@@ -129,9 +141,11 @@ export async function handleNodejsFunction({
 
   const response = await callback.call(context, data);
 
-  if (handler.options?.resolveFormSubmission && !forceJsonResponse) {
-    const manipulatedResponse =
-      await handler.options.resolveFormSubmission.call(context, response);
+  if (handler.options?.hookResponse && !forceJsonResponse) {
+    const manipulatedResponse = await handler.options.hookResponse.call(
+      context,
+      response
+    );
     streamResponseResult(manipulatedResponse, res);
     return;
   }
