@@ -1,9 +1,9 @@
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { Parser } from "next-api-endpoints-core-plugin/parser";
 import type { HandlerCallback } from "next-api-endpoints-core-plugin/server";
-import { createPlugin } from "next-api-endpoints-core-plugin";
 import type { NextConfig } from "next";
 import type { HookMetadata } from "next-api-endpoints-core-plugin/client";
+import { createPlugin } from "next-api-endpoints-core-plugin";
 
 export function query<Input, Output>(
   parser: Parser<Input>,

@@ -6,9 +6,9 @@ import {
 } from "next-api-endpoints-core-plugin/client";
 import {
   useQuery,
-  UseQueryOptions,
+  type UseQueryOptions,
   useMutation,
-  MutationOptions,
+  type MutationOptions,
 } from "@tanstack/react-query";
 
 export function createQueryHook(url: string, handlerName: string) {
