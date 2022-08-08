@@ -1,0 +1,7 @@
+{
+  "main": "../dist/form.js",
+  "module": "../dist/form.mjs",
+  "browser": "../dist/form.mjs",
+  "types": "../dist/form.d.ts",
+  "sideEffects": false
+}

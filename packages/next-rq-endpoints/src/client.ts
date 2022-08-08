@@ -2,6 +2,7 @@ import {
   mutationFetcher,
   queryFetcher,
   buildUrlSearchParams,
+  addMetadata,
 } from "next-api-endpoints-core-plugin/client";
 import {
   useQuery,
@@ -22,12 +23,19 @@ export function createQueryHook(url: string, handlerName: string) {
 export function createMutationHook(url: string, handlerName: string) {
   return (opts?: MutationOptions<unknown, unknown>) => {
     const searchParams = buildUrlSearchParams(handlerName, {});
-    return useMutation(
-      (mutation) => {
-        console.log({ mutation });
-        return mutationFetcher(`${url}?${searchParams}`, { arg: mutation });
+    return addMetadata(
+      {
+        handlerName,
+        baseUrl: url,
+        method: "POST",
       },
-      { ...opts }
+      useMutation(
+        (mutation) => {
+          console.log({ mutation });
+          return mutationFetcher(`${url}?${searchParams}`, { arg: mutation });
+        },
+        { ...opts }
+      )
     );
   };
 }

@@ -3,6 +3,7 @@ import type { Parser } from "next-api-endpoints-core-plugin/parser";
 import type { HandlerCallback } from "next-api-endpoints-core-plugin/server";
 import { createPlugin } from "next-api-endpoints-core-plugin";
 import type { NextConfig } from "next";
+import type { HookMetadata } from "next-api-endpoints-core-plugin/client";
 
 export function query<Input, Output>(
   parser: Parser<Input>,
@@ -14,7 +15,7 @@ export function query<Input, Output>(
 export function mutation<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>
-): () => UseMutationResult<Output, any, Input> {
+): () => UseMutationResult<Output, any, Input> & { meta: HookMetadata } {
   throw new Error("This code path should not be reached");
 }
 

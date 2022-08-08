@@ -14,8 +14,12 @@ export type HandlerCallback<Input, Output> = (
 type Handler<Input, Output> = {
   parser: Parser<Input>;
   callback: HandlerCallback<Input, Output>;
+  options: Partial<HookIntoResponse<Output>>;
 };
+
 type Handlers = Map<string, Handler<unknown, unknown>>;
+
+const API_CONTENT_TYPE = "application/json+api";
 
 export async function handleEdgeFunction({
   queries,
@@ -33,6 +37,7 @@ export async function handleEdgeFunction({
     return new Response("Missing __handler", { status: 400 });
   }
   const handler = bag.get(handlerName);
+  const forceJsonResponse = request.headers.get("accept") === API_CONTENT_TYPE;
   url.searchParams.delete("__handler");
 
   if (!handler) {
@@ -46,7 +51,7 @@ export async function handleEdgeFunction({
     data = await parse(
       parser,
       bag === mutations
-        ? await request.json()
+        ? await getRequestBody(request)
         : fromSearchParamToObject(url.searchParams)
     );
   } catch (e: any) {
@@ -54,7 +59,22 @@ export async function handleEdgeFunction({
   }
 
   const response = await callback.call({ request }, data);
+
+  if (handler.options?.hookResponse && !forceJsonResponse) {
+    return handler.options.hookResponse.call({ request }, response);
+  }
+
   return NextResponse.json(response);
+}
+
+async function getRequestBody(request: Request): Promise<unknown> {
+  if (
+    request.headers.get("content-type") === "application/x-www-form-urlencoded"
+  ) {
+    return fromSearchParamToObject(new URLSearchParams(await request.text()));
+  }
+
+  return await request.json();
 }
 
 export async function handleNodejsFunction({
@@ -69,6 +89,7 @@ export async function handleNodejsFunction({
   mutations: Handlers;
 }) {
   const bag = req.method?.toUpperCase() === "POST" ? mutations : queries;
+  const forceJsonResponse = req.headers.accept === API_CONTENT_TYPE;
 
   const handler = bag.get(String(req.query.__handler));
   delete req.query.__handler;
@@ -91,18 +112,26 @@ export async function handleNodejsFunction({
    * A standard {@link Request} object that represents the current {@link NextApiRequest}
    */
   let request: NextRequest | null = null;
-
-  const response = await callback.call(
-    {
-      get request() {
-        if (!request) {
-          request = createStandardRequestFromNodejsRequest(req);
-        }
-        return request;
-      },
+  const context: RequestContext = {
+    get request() {
+      if (!request) {
+        request = createStandardRequestFromNodejsRequest(req);
+      }
+      return request;
     },
-    data
-  );
+  };
+
+  const response = await callback.call(context, data);
+
+  if (handler.options?.hookResponse && !forceJsonResponse) {
+    const manipulatedResponse = await handler.options.hookResponse.call(
+      context,
+      response
+    );
+    streamResponseResult(manipulatedResponse, res);
+    return;
+  }
+
   return res.send(JSON.stringify(response));
 }
 
@@ -149,3 +178,42 @@ function createStandardRequestFromNodejsRequest(
     method: req.method,
   });
 }
+
+function streamResponseResult(response: Response, res: NextApiResponse): void {
+  response.headers.forEach((value, key) => {
+    res.setHeader(key, value);
+  });
+
+  res.statusCode = response.status;
+
+  if (!response.body) {
+    res.end();
+    return;
+  }
+
+  if ("pipe" in response.body) {
+    // @ts-expect-error
+    response.body.pipe(res);
+  } else {
+    res.end(response.body);
+  }
+}
+
+export type HookIntoResponse<Output> = {
+  /**
+   * A hook to return a custom Response, when the request is handled
+   * for a direct request (form submissions, user navigations, etc)
+   *
+   * @example
+   * ```ts
+   * hookResponse(output) {
+   *   const newUrl = new URL(`/users/${output.id}`, this.request.url);
+   *   return Response.redirect(newUrl.toString())
+   * }
+   * ```
+   */
+  hookResponse(
+    this: RequestContext,
+    output: Output
+  ): Promise<Response> | Response;
+};

@@ -1,21 +1,31 @@
 import type { SWRResponse } from "swr";
 import type { SWRMutationResponse } from "swr/mutation";
 import type { Parser } from "next-api-endpoints-core-plugin/parser";
-import type { HandlerCallback } from "next-api-endpoints-core-plugin/server";
+import type { HookMetadata } from "next-api-endpoints-core-plugin/client";
+import type {
+  HandlerCallback,
+  HookIntoResponse,
+} from "next-api-endpoints-core-plugin/server";
 import { createPlugin } from "next-api-endpoints-core-plugin";
 import type { NextConfig } from "next";
 
 export function query<Input, Output>(
   parser: Parser<Input>,
-  callback: HandlerCallback<Input, Output>
-): (v: Input) => SWRResponse<Output> {
+  callback: HandlerCallback<Input, Output>,
+  options?: Partial<HookIntoResponse<Output>>
+): ((v: Input) => SWRResponse<Output>) & { meta: HookMetadata } {
   throw new Error("This code path should not be reached");
 }
 
+export type MutationOptions<Output> = HookIntoResponse<Output>;
+
 export function mutation<Input, Output>(
   parser: Parser<Input>,
-  callback: HandlerCallback<Input, Output>
-): () => SWRMutationResponse<Output, any, Input> {
+  callback: HandlerCallback<Input, Output>,
+  options?: Partial<MutationOptions<Output>>
+): (() => SWRMutationResponse<Output, any, Input> & { meta: HookMetadata }) & {
+  meta: HookMetadata;
+} {
   throw new Error("This code path should not be reached");
 }
 
