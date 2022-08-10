@@ -1,14 +1,14 @@
 import { type HTMLProps, createElement } from "react";
 import { useForm as useForm_ } from "next-api-endpoints-core-plugin/form";
 import type {
-  SWRMutationResponse,
-  SWRMutationConfiguration,
-} from "swr/mutation";
+  UseMutationResult,
+  UseMutationOptions,
+} from "@tanstack/react-query";
 import type { HookMetadata } from "next-api-endpoints-core-plugin/client";
 
-type HookWithFormSubmission<Data, Error> = Pick<
-  SWRMutationResponse<Data, Error>,
-  "trigger"
+type HookWithFormSubmission<Data, Error, Input, Context> = Pick<
+  UseMutationResult<Data, Error, Input, Context>,
+  "mutate"
 > & {
   meta: HookMetadata;
 };
@@ -18,13 +18,13 @@ type HookWithFormSubmission<Data, Error> = Pick<
  * This enables progressive enhancement, as the form can be submitted
  * without having to re-render the app using JavaScript code.
  */
-export function useForm<Data, Error>(
-  hook: HookWithFormSubmission<Data, Error>,
-  config?: SWRMutationConfiguration<Data, Error>
+export function useForm<Data, Error, Input, Context>(
+  hook: HookWithFormSubmission<Data, Error, Input, Context>,
+  config?: UseMutationOptions<Data, Error, Input, Context>
 ): {
   formProps: HTMLProps<HTMLFormElement>;
 } {
-  return useForm_(hook, config);
+  return useForm_({ meta: hook.meta, trigger: hook.mutate }, config);
 }
 
 /**
@@ -32,14 +32,14 @@ export function useForm<Data, Error>(
  * This enables progressive enhancement, as the form can be submitted
  * without having to re-render the app using JavaScript code.
  */
-export function Form<Data, Error>({
+export function Form<Data, Error, Input, Context>({
   mutation,
   mutationConfig,
   ...props
 }: React.HTMLProps<HTMLFormElement> &
   React.PropsWithChildren<{
-    mutation: HookWithFormSubmission<Data, Error>;
-    mutationConfig?: SWRMutationConfiguration<Data, Error>;
+    mutation: HookWithFormSubmission<Data, Error, Input, Context>;
+    mutationConfig?: UseMutationOptions<Data, Error, Input, Context>;
   }>) {
   const { formProps } = useForm(mutation, mutationConfig);
   return createElement("form", { ...formProps, ...props }, props.children);

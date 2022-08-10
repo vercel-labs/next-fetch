@@ -6,7 +6,7 @@ import { cleanRegionsFromSource } from "./cleanRegionsFromSource";
 
 test("finds all the exported handlers", () => {
   const input = `
-    import { query, mutation } from 'next-swr-endpoints';
+    import { query, mutation } from 'my-pkg';
 
     export const useMyQuery = query({}, () => "Hello", { something: 'else' })
       , config = {
@@ -56,6 +56,6 @@ test("finds all the exported handlers", () => {
     .trim();
 
   expect(formattedCode).toMatchInlineSnapshot(`
-      "import { query, mutation } from \\"next-swr-endpoints\\";"
+      "import { query, mutation } from \\"my-pkg\\";"
     `);
 });

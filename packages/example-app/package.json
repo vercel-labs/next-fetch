@@ -15,7 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "next": "^12.2.3",
+    "@tanstack/react-query": "^4.0.10",
+    "next": "^12.2.4",
+    "next-rq-endpoints": "workspace:^1.0.0",
     "next-swr-endpoints": "workspace:*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",

@@ -1,0 +1,5 @@
+{
+  "main": "../dist/parser.js",
+  "module": "../dist/parser.mjs",
+  "types": "../dist/parser.d.ts"
+}
