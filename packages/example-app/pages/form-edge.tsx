@@ -1,5 +1,5 @@
 import { useRuntimeInfoMutation } from "./api/edge.swr";
-import { Form } from "next-swr-endpoints/form";
+import { Form } from "@next-fetch/swr/form";
 
 export const config = { runtime: "experimental-edge" };
 

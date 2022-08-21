@@ -1,10 +1,10 @@
 import { type HTMLProps, createElement } from "react";
-import { useForm as useForm_ } from "next-api-endpoints-core-plugin/form";
+import { useForm as useForm_ } from "@next-fetch/core-plugin/form";
 import type {
   UseMutationResult,
   UseMutationOptions,
 } from "@tanstack/react-query";
-import type { HookMetadata } from "next-api-endpoints-core-plugin/client";
+import type { HookMetadata } from "@next-fetch/core-plugin/client";
 
 type HookWithFormSubmission<Data, Error, Input, Context> = Pick<
   UseMutationResult<Data, Error, Input, Context>,

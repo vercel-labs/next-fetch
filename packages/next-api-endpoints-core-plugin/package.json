@@ -1,5 +1,5 @@
 {
-  "name": "next-api-endpoints-core-plugin",
+  "name": "@next-fetch/core-plugin",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",

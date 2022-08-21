@@ -1,5 +1,5 @@
 import z from "zod";
-import { query, mutation } from "next-swr-endpoints";
+import { query, mutation } from "@next-fetch/swr";
 import { userAgent } from "next/server";
 
 export const useAllPeople = query(

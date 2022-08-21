@@ -1,1 +1,1 @@
-export { default } from "next-api-endpoints-core-plugin/server-loader";
+export { default } from "@next-fetch/core-plugin/server-loader";

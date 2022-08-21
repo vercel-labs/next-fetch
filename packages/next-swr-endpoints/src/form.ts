@@ -1,10 +1,10 @@
 import { type HTMLProps, createElement } from "react";
-import { useForm as useForm_ } from "next-api-endpoints-core-plugin/form";
+import { useForm as useForm_ } from "@next-fetch/core-plugin/form";
 import type {
   SWRMutationResponse,
   SWRMutationConfiguration,
 } from "swr/mutation";
-import type { HookMetadata } from "next-api-endpoints-core-plugin/client";
+import type { HookMetadata } from "@next-fetch/core-plugin/client";
 
 type HookWithFormSubmission<Data, Error> = Pick<
   SWRMutationResponse<Data, Error>,

@@ -1,4 +1,4 @@
 export {
   handleEdgeFunction,
   handleNodejsFunction,
-} from "next-api-endpoints-core-plugin/server";
+} from "@next-fetch/core-plugin/server";
