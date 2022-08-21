@@ -17,7 +17,7 @@
   "dependencies": {
     "@tanstack/react-query": "^4.0.10",
     "next": "^12.2.4",
-    "@next-fetch/react-query": "workspace:^1.0.0",
+    "@next-fetch/react-query": "workspace:*",
     "@next-fetch/swr": "workspace:*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",

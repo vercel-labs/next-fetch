@@ -51,7 +51,7 @@ importers:
 
   packages/@next-fetch/react-query:
     specifiers:
-      '@next-fetch/core-plugin': workspace:^1.0.0
+      '@next-fetch/core-plugin': workspace:^0.0.0
       '@tanstack/react-query': ^4.0.10
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
@@ -75,7 +75,7 @@ importers:
 
   packages/@next-fetch/swr:
     specifiers:
-      '@next-fetch/core-plugin': workspace:^1.0.0
+      '@next-fetch/core-plugin': workspace:^0.0.0
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
       next: ^12.2.4
@@ -99,7 +99,7 @@ importers:
 
   packages/example-app:
     specifiers:
-      '@next-fetch/react-query': workspace:^1.0.0
+      '@next-fetch/react-query': workspace:*
       '@next-fetch/swr': workspace:*
       '@playwright/test': ^1.23.2
       '@tanstack/react-query': ^4.0.10
