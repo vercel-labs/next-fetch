@@ -14,6 +14,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@changesets/cli": "^2.24.3",
+    "@svitejs/changesets-changelog-github-compact": "^0.1.1",
     "turbo": "^1.2.16"
   }
 }
