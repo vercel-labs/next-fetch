@@ -49,4 +49,4 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         with:
           version: pnpm version:prepare
-          publish: pnpm release
+          publish: pnpm version:publish
