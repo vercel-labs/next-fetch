@@ -7,11 +7,12 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "files": [
-    "./client-loader/package.json",
-    "./client/package.json",
-    "./dist/**/*",
-    "./server-loader/package.json",
-    "./server/package.json"
+    "client-loader/package.json",
+    "client/package.json",
+    "dist/**/*",
+    "form/package.json",
+    "server-loader/package.json",
+    "server/package.json"
   ],
   "scripts": {
     "build": "tsup",
