@@ -1,0 +1,27 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "^12.2.4",
+    "nextra": "beta",
+    "nextra-theme-docs": "beta",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.38",
+    "@types/react": "^18.0.10",
+    "@types/react-dom": "^18.0.5",
+    "typescript": "^4.7.2"
+  }
+}
