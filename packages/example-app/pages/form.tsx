@@ -1,5 +1,5 @@
 import { useListPeopleWith } from "./api/people.swr";
-import { Form } from "next-swr-endpoints/form";
+import { Form } from "@next-fetch/swr/form";
 
 export default function Page(props: { runtime: string }) {
   const listPeopleWith = useListPeopleWith();

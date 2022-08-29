@@ -2,6 +2,7 @@
   "name": "example-app",
   "version": "1.0.0",
   "description": "",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "build": "next build",
@@ -17,8 +18,8 @@
   "dependencies": {
     "@tanstack/react-query": "^4.0.10",
     "next": "^12.2.4",
-    "next-rq-endpoints": "workspace:^1.0.0",
-    "next-swr-endpoints": "workspace:*",
+    "@next-fetch/react-query": "workspace:*",
+    "@next-fetch/swr": "workspace:*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "swr": "^2.0.0-beta.6",

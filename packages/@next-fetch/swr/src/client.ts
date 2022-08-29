@@ -4,7 +4,7 @@ import {
   mutationFetcher,
   queryFetcher,
   type HookMetadata,
-} from "next-api-endpoints-core-plugin/client";
+} from "@next-fetch/core-plugin/client";
 import useSWR, { type SWRConfiguration } from "swr";
 import useSWRMutation, { type SWRMutationConfiguration } from "swr/mutation";
 

@@ -1,5 +1,5 @@
 import z from "zod";
-import { query, mutation } from "next-rq-endpoints";
+import { query, mutation } from "@next-fetch/react-query";
 import { userAgent } from "next/server";
 
 export const useAllPeople = query(

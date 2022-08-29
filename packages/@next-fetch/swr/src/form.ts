@@ -1,14 +1,14 @@
 import { type HTMLProps, createElement } from "react";
-import { useForm as useForm_ } from "next-api-endpoints-core-plugin/form";
+import { useForm as useForm_ } from "@next-fetch/core-plugin/form";
 import type {
-  UseMutationResult,
-  UseMutationOptions,
-} from "@tanstack/react-query";
-import type { HookMetadata } from "next-api-endpoints-core-plugin/client";
+  SWRMutationResponse,
+  SWRMutationConfiguration,
+} from "swr/mutation";
+import type { HookMetadata } from "@next-fetch/core-plugin/client";
 
-type HookWithFormSubmission<Data, Error, Input, Context> = Pick<
-  UseMutationResult<Data, Error, Input, Context>,
-  "mutate"
+type HookWithFormSubmission<Data, Error> = Pick<
+  SWRMutationResponse<Data, Error>,
+  "trigger"
 > & {
   meta: HookMetadata;
 };
@@ -18,13 +18,13 @@ type HookWithFormSubmission<Data, Error, Input, Context> = Pick<
  * This enables progressive enhancement, as the form can be submitted
  * without having to re-render the app using JavaScript code.
  */
-export function useForm<Data, Error, Input, Context>(
-  hook: HookWithFormSubmission<Data, Error, Input, Context>,
-  config?: UseMutationOptions<Data, Error, Input, Context>
+export function useForm<Data, Error>(
+  hook: HookWithFormSubmission<Data, Error>,
+  config?: SWRMutationConfiguration<Data, Error>
 ): {
   formProps: HTMLProps<HTMLFormElement>;
 } {
-  return useForm_({ meta: hook.meta, trigger: hook.mutate }, config);
+  return useForm_(hook, config);
 }
 
 /**
@@ -32,14 +32,14 @@ export function useForm<Data, Error, Input, Context>(
  * This enables progressive enhancement, as the form can be submitted
  * without having to re-render the app using JavaScript code.
  */
-export function Form<Data, Error, Input, Context>({
+export function Form<Data, Error>({
   mutation,
   mutationConfig,
   ...props
 }: React.HTMLProps<HTMLFormElement> &
   React.PropsWithChildren<{
-    mutation: HookWithFormSubmission<Data, Error, Input, Context>;
-    mutationConfig?: UseMutationOptions<Data, Error, Input, Context>;
+    mutation: HookWithFormSubmission<Data, Error>;
+    mutationConfig?: SWRMutationConfiguration<Data, Error>;
   }>) {
   const { formProps } = useForm(mutation, mutationConfig);
   return createElement("form", { ...formProps, ...props }, props.children);

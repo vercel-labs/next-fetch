@@ -1,5 +1,5 @@
 import { useListPeopleWith } from "../api/rq/people.rq";
-import { Form } from "next-rq-endpoints/form";
+import { Form } from "@next-fetch/react-query/form";
 
 export default function Page(props: { runtime: string }) {
   const listPeopleWith = useListPeopleWith();

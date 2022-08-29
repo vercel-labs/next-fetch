@@ -3,7 +3,7 @@ import {
   queryFetcher,
   buildUrlSearchParams,
   addMetadata,
-} from "next-api-endpoints-core-plugin/client";
+} from "@next-fetch/core-plugin/client";
 import {
   useQuery,
   type UseQueryOptions,

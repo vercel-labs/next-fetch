@@ -1,4 +1,4 @@
-const { withSwrApiEndpoints } = require("next-swr-endpoints");
-const { withReactQueryApiEndpoints } = require("next-rq-endpoints");
+const { withSwrApiEndpoints } = require("@next-fetch/swr");
+const { withReactQueryApiEndpoints } = require("@next-fetch/react-query");
 
 module.exports = withReactQueryApiEndpoints(withSwrApiEndpoints());
