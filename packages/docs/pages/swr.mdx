@@ -1,0 +1,125 @@
+---
+title: "Next Fetch + SWR quickstart"
+---
+
+import { Callout } from "nextra-theme-docs";
+
+<Callout type="info">
+  Looking for integrating Next Fetch with React Query? [Check out the React
+  Query integration guide](./react-query).
+</Callout>
+
+Next Fetch supports [SWR v2](https://swr.vercel.app) out of the box, through the `@next-fetch/swr` package.
+
+## Installation
+
+Assuming you already installed SWR v2 in your project, install `@next-fetch/swr` and your runtime type validation of choice. In this guide we will use [Zod](https://zod.dev).
+
+```bash
+# pnpm
+pnpm add @next-fetch/swr zod
+# yarn
+yarn add @next-fetch/swr zod
+# npm
+npm install --save @next-fetch/swr zod
+```
+
+## Set up `next.config.js`
+
+Within your `next.config.js` file, make the following changes to use `withSwrApiEndpoints`:
+
+```diff
++ const { withSwrApiEndpoints } = require("@next-fetch/swr");
++
+  const config = { /* ... */ };
+- module.exports = config;
++ module.exports = withSwrApiEndpoints(config);
+```
+
+Now you can restart your app, to make sure the changes in `next.config.js` are applied.
+
+## Create your first API endpoint
+
+Any `pages/api/*.swr.ts` file will be automatically compiled using Next Fetch's compiler. For our test, we can create a simple `pages/api/simple.swr.ts` endpoint:
+
+```ts
+// pages/api/simple.swr.ts
+
+import { query } from "@next-fetch/swr";
+import z from "zod";
+
+export const useMessage = query(
+  z.object({ name: z.string() }),
+  async ({ name }) => {
+    return { message: `Hello ${name}` };
+  }
+);
+```
+
+## Use the API endpoint in any page
+
+```ts
+// pages/index.tsx
+
+import { useMessage } from "./api/simple.swr";
+
+export default function Home() {
+  const { data, error } = useMessage({ name: "World" });
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {String(error)}</div>;
+  }
+
+  return <div>{data.message}</div>;
+}
+```
+
+## Add a mutation to your API endpoint
+
+```ts
+// pages/api/simple.swr.ts
+
+export const useMutation = query(
+  z.object({ name: z.string() }),
+  async ({ name }) => {
+    return { message: "Hello " + name };
+  },
+  {
+    // This will be called when the form is sent before JavaScript loads
+    // and enables to add logic for smart server-side redirections
+    hookResponse(data) {
+      const newUrl = new URL("/form", this.request.url);
+      newUrl.searchParams.set("message", data.message);
+      return Response.redirect(newUrl.toString(), 302);
+    },
+  }
+);
+```
+
+## Use the `<Form />` component to call the mutation
+
+```ts
+// pages/form.tsx
+
+import { useMutation } from "./api/simple.swr";
+import { Form } from "@next-fetch/swr/form";
+
+export default function MyFormPage() {
+  const mutation = useMutation();
+
+  return (
+    <Form mutation={mutation}>
+      <input type="text" name="name" />
+      <button type="submit">Submit</button>
+    </Form>
+  );
+}
+```
+
+## That's it.
+
+Now you have a fullly working app with Next Fetch and SWR.

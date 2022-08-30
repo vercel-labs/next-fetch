@@ -1,0 +1,129 @@
+---
+title: "Next Fetch + React Query quickstart"
+---
+
+import { Callout } from "nextra-theme-docs";
+
+<Callout type="info">
+  Looking for integrating Next Fetch with SWR? [Check out the SWR integration
+  guide](./swr).
+</Callout>
+
+Next Fetch supports [React Query v4](https://tanstack.com/query/v4) out of the box, through the `@next-fetch/react-query` package.
+
+## Set up React Query
+
+First, make sure you went through [React Query's quick start guide](https://tanstack.com/query/v4/docs/quick-start) to set up the necessary environment. The `QueryClientProvider` needs to be set up in `_app` to allow React Query to work properly.
+
+## Installation
+
+Assuming you already installed React Query v4 in your project, install `@next-fetch/react-query` and your runtime type validation of choice. In this guide we will use [Zod](https://zod.dev).
+
+```bash
+# pnpm
+pnpm add @next-fetch/react-query zod
+# yarn
+yarn add @next-fetch/react-query zod
+# npm
+npm install --save @next-fetch/react-query zod
+```
+
+## Set up `next.config.js`
+
+Within your `next.config.js` file, make the following changes to use `withReactQueryApiEndpoints`:
+
+```diff
++ const { withReactQueryApiEndpoints } = require("@next-fetch/react-query");
++
+  const config = { /* ... */ };
+- module.exports = config;
++ module.exports = withReactQueryApiEndpoints(config);
+```
+
+Now you can restart your app, to make sure the changes in `next.config.js` are applied.
+
+## Create your first API endpoint
+
+Any `pages/api/*.rq.ts` file will be automatically compiled using Next Fetch's compiler. For our test, we can create a simple `pages/api/simple.rq.ts` endpoint:
+
+```ts
+// pages/api/simple.rq.ts
+
+import { query } from "@next-fetch/react-query";
+import z from "zod";
+
+export const useMessage = query(
+  z.object({ name: z.string() }),
+  async ({ name }) => {
+    return { message: `Hello ${name}` };
+  }
+);
+```
+
+## Use the API endpoint in any page
+
+```ts
+// pages/index.tsx
+
+import { useMessage } from "./api/simple.rq";
+
+export default function Home() {
+  const { data, error, isLoading } = useMessage({ name: "World" });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {String(error)}</div>;
+  }
+
+  return <div>{data.message}</div>;
+}
+```
+
+## Add a mutation to your API endpoint
+
+```ts
+// pages/api/simple.rq.ts
+
+export const useMutation = query(
+  z.object({ name: z.string() }),
+  async ({ name }) => {
+    return { message: "Hello " + name };
+  },
+  {
+    // This will be called when the form is sent before JavaScript loads
+    // and enables to add logic for smart server-side redirections
+    hookResponse(data) {
+      const newUrl = new URL("/form", this.request.url);
+      newUrl.searchParams.set("message", data.message);
+      return Response.redirect(newUrl.toString(), 302);
+    },
+  }
+);
+```
+
+## Use the `<Form />` component to call the mutation
+
+```ts
+// pages/form.tsx
+
+import { useMutation } from "./api/simple.rq";
+import { Form } from "@next-fetch/react-query/form";
+
+export default function MyFormPage() {
+  const mutation = useMutation();
+
+  return (
+    <Form mutation={mutation}>
+      <input type="text" name="name" />
+      <button type="submit">Submit</button>
+    </Form>
+  );
+}
+```
+
+## That's it.
+
+Now you have a fullly working app with Next Fetch and React Query.
