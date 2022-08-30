@@ -1,3 +1,5 @@
+import { Tab, Tabs } from "nextra-theme-docs";
+
 # Next Fetch
 
 Think in React, instead about routing: Next Fetch is an intuitive way to dynamically fetch data from API endpoints in Next.js, using your favorite libraries.
@@ -14,72 +16,33 @@ Think in React, instead about routing: Next Fetch is an intuitive way to dynamic
 
 📝 Use `<Form />` component for making progressive enhanced experiences
 
-🤯 Supports [SWR](https://swr.vercel.app) and [React Query](https://tanstack.com/query/v4) out of the box!
+🤯 Supports [SWR](./swr) and [React Query](./react-query) out of the box!
 
 ## What does that mean?
 
-Next Fetch is using compile-time transformations to allow you to _import_ your API endpoints instead of referecing them as plain strings, while keeping the type definitions co-located with the implementation.
+Next Fetch is using compile-time transformations to allow you to _import_ your API endpoints instead of referecing them as plain strings, while keeping the type definitions co-located with the implementation. This means you get type-safety and autocomplete for your API endpoints, and save keystrokes and bytes.
 
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Next.js + Next Fetch</th>
-<th>Plain Next.js</th>
-</tr>
-</thead>
+<Tabs items={["with Next Fetch", "without Next Fetch"]}>
+<Tab>
 
-<tbody>
-<tr>
-<td>API implementation</td>
-<td>
-
-```tsx
-// pages/api/message.swr.tsx
+```ts filename="pages/api/message.swr.ts"
 import { query } from "@next-fetch/swr";
 import z from "zod";
 
 export const useMessage = query(
-  // use zod for input validation
+  // use zod or other input validation libraries
   z.object({
     name: z.string(),
   }),
   async function ({ name }) {
     // this.request is a `Request` instance
-    return { hello: `world, ${name}` };
+    return { hello: "world, " + name };
   }
 );
 ```
 
-</td>
-<td>
-
-```tsx
-// pages/api/message.tsx
-import type { NextApiRequest, NextApiResponse } from "next";
-
-export default (req: NextApiRequest, res: NextApiResponse) => {
-  // ad-hoc input validation
-  const name = Array.isArray(req.query.name)
-    ? req.query.name[0]
-    : req.query.name;
-  if (!name) {
-    return res.status(400).json({ error: "No name provided" });
-  }
-
-  // explicit type defniitions required
-  return res.status(200).json({ hello: `world, ${name}` });
-};
-```
-
-</td>
-</tr>
-<tr>
-<td>API consumption</td>
-<td>
-
-```tsx
-import { useMessage } from "./api/message";
+```tsx filename="pages/index.tsx"
+import { useMessage } from "./api/message.swr";
 
 export default function MyPage() {
   const { data, error } = useMessage({
@@ -95,11 +58,28 @@ export default function MyPage() {
 }
 ```
 
-</td>
-<td>
+</Tab>
 
-```tsx
-// pages/index.tsx
+<Tab>
+
+```ts filename="pages/api/message.ts"
+import type { NextApiRequest, NextApiResponse } from "next";
+
+export default (req: NextApiRequest, res: NextApiResponse) => {
+  // ad-hoc input validation
+  const name = Array.isArray(req.query.name)
+    ? req.query.name[0]
+    : req.query.name;
+  if (!name) {
+    return res.status(400).json({ error: "No name provided" });
+  }
+
+  // explicit type defniitions required
+  return res.status(200).json({ hello: "world, " + name });
+};
+```
+
+```tsx filename="pages/index.tsx"
 import useSWR from "swr";
 
 const fetcher = (url: string) => {
@@ -121,8 +101,5 @@ export default function MyPage() {
 }
 ```
 
-</td>
-</tr>
-</tbody>
-
-</table>
+</Tab>
+</Tabs>
