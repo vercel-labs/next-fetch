@@ -1,17 +1,18 @@
 {
   "name": "@next-fetch/react-query",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "files": [
-    "./client-loader/package.json",
-    "./client/package.json",
-    "./dist/**/*",
-    "./server-loader/package.json",
-    "./server/package.json"
+    "client-loader/package.json",
+    "client/package.json",
+    "dist/**/*",
+    "form/package.json",
+    "server-loader/package.json",
+    "server/package.json"
   ],
   "scripts": {
     "build": "tsup",
