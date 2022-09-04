@@ -9,20 +9,38 @@ import type {
 import { createPlugin } from "@next-fetch/core-plugin";
 import type { NextConfig } from "next";
 
+export function query<Output>(
+  callback: HandlerCallback<void, Output>,
+  options?: Partial<HookIntoResponse<Output>>
+): (() => SWRResponse<Output>) & { meta: HookMetadata };
 export function query<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>,
   options?: Partial<HookIntoResponse<Output>>
+): ((v: Input) => SWRResponse<Output>) & { meta: HookMetadata };
+export function query<Input, Output>(
+  parser: unknown,
+  callback: unknown,
+  options?: unknown
 ): ((v: Input) => SWRResponse<Output>) & { meta: HookMetadata } {
   throw new Error("This code path should not be reached");
 }
 
 export type MutationOptions<Output> = HookIntoResponse<Output>;
 
+export function mutation<Output>(
+  callback: HandlerCallback<void, Output>,
+  options?: Partial<MutationOptions<Output>>
+): () => SWRMutationResponse<Output, any, void> & { meta: HookMetadata };
 export function mutation<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>,
   options?: Partial<MutationOptions<Output>>
+): () => SWRMutationResponse<Output, any, Input> & { meta: HookMetadata };
+export function mutation<Input, Output>(
+  parser: unknown,
+  callback: unknown,
+  options?: unknown
 ): (() => SWRMutationResponse<Output, any, Input> & { meta: HookMetadata }) & {
   meta: HookMetadata;
 } {

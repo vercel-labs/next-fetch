@@ -2,14 +2,12 @@ import { test, expect } from "@playwright/test";
 
 test("basic test", async ({ page }) => {
   await page.goto("/");
-  const title = page.locator("#result");
-  await expect(title).toHaveText("Hello, gal :D");
+  await expect(page.locator("#singlePerson")).toHaveText("Hello, gal :D");
+  await expect(page.locator("#allPeople")).toHaveText("Many people are here!");
 });
 
 test("direct request to node.js", async ({ page }) => {
-  const response = await page.goto(
-    "/api/people?__handler=useAllPeople&name=Gal"
-  );
+  const response = await page.goto("/api/people?__handler=usePerson&name=Gal");
   const text = await response?.text();
   expect(text).toEqual("Hello, Gal :D");
   await expect(response?.headerValue("x-direct-request")).resolves.toEqual(
@@ -19,14 +17,16 @@ test("direct request to node.js", async ({ page }) => {
 
 test("edge runtime", async ({ page }) => {
   await page.goto("/edge");
-  const title = page.locator("#result");
-  await expect(title).toHaveText("gal, EdgeRuntime = edge-runtime");
+  await expect(page.locator("#runtimeInfo")).toHaveText(
+    "gal, EdgeRuntime = edge-runtime"
+  );
+  await expect(page.locator("#noArgs")).toHaveText("edge-runtime");
 });
 
 test("react query", async ({ page }) => {
   await page.goto("/rq");
-  const title = page.locator("#result");
-  await expect(title).toHaveText("Hello, gal :D");
+  await expect(page.locator("#singlePerson")).toHaveText("Hello, gal :D");
+  await expect(page.locator("#allPeople")).toHaveText("Many people are here!");
 });
 
 test("direct request to edge", async ({ page }) => {
