@@ -9,23 +9,32 @@ import type {
 import { createPlugin } from "@next-fetch/core-plugin";
 import type { NextConfig } from "next";
 
+export type QueryResult<Input, Output> = ((v: Input) => SWRResponse<Output>) & {
+  meta: HookMetadata;
+};
+
 export function query<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>,
   options?: Partial<HookIntoResponse<Output>>
-): ((v: Input) => SWRResponse<Output>) & { meta: HookMetadata } {
+): QueryResult<Input, Output> {
   throw new Error("This code path should not be reached");
 }
 
 export type MutationOptions<Output> = HookIntoResponse<Output>;
+export type MutationResult<Input, Output> = (() => SWRMutationResponse<
+  Output,
+  any,
+  Input
+> & { meta: HookMetadata }) & {
+  meta: HookMetadata;
+};
 
 export function mutation<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>,
   options?: Partial<MutationOptions<Output>>
-): (() => SWRMutationResponse<Output, any, Input> & { meta: HookMetadata }) & {
-  meta: HookMetadata;
-} {
+): MutationResult<Input, Output> {
   throw new Error("This code path should not be reached");
 }
 
@@ -38,3 +47,18 @@ export function withSwrApiEndpoints(given: NextConfig = {}): NextConfig {
     serverPackageName: "@next-fetch/swr/server",
   })(given);
 }
+
+export type inputOf<
+  T extends MutationResult<any, any> | QueryResult<any, any>
+> = T extends MutationResult<infer Input, any>
+  ? Input
+  : T extends QueryResult<infer Input, any>
+  ? Input
+  : never;
+export type outputOf<
+  T extends MutationResult<any, any> | QueryResult<any, any>
+> = T extends MutationResult<any, infer Output>
+  ? Output
+  : T extends QueryResult<any, infer Output>
+  ? Output
+  : never;

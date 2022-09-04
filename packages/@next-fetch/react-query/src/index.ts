@@ -5,6 +5,13 @@ import type { NextConfig } from "next";
 import type { HookMetadata } from "@next-fetch/core-plugin/client";
 import { createPlugin } from "@next-fetch/core-plugin";
 
+export type QueryResult<Input, Output> = (v: Input) => UseQueryResult<Output>;
+export type MutationResult<Input, Output> = () => UseMutationResult<
+  Output,
+  any,
+  Input
+> & { meta: HookMetadata };
+
 export function query<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>
@@ -28,3 +35,25 @@ export function withReactQueryApiEndpoints(given: NextConfig = {}): NextConfig {
     serverPackageName: "@next-fetch/react-query/server",
   })(given);
 }
+
+/**
+ * Retrieves the type of the input of a given query/mutation hook
+ */
+export type inputOf<
+  T extends QueryResult<any, any> | MutationResult<any, any>
+> = T extends MutationResult<infer Input, any>
+  ? Input
+  : T extends QueryResult<infer Input, any>
+  ? Input
+  : never;
+
+/**
+ * Retrieves the type of the output of a given query/mutation hook
+ */
+export type outputOf<
+  T extends QueryResult<any, any> | MutationResult<any, any>
+> = T extends MutationResult<any, infer Output>
+  ? Output
+  : T extends QueryResult<any, infer Output>
+  ? Output
+  : never;
