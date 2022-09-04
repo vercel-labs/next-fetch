@@ -1,5 +1,5 @@
 import z from "zod";
-import { mutation, query } from "@next-fetch/swr";
+import { mutation, query } from "@next-fetch/react-query";
 import { userAgent } from "next/server";
 
 export const config = { runtime: "experimental-edge" };

@@ -31,10 +31,10 @@ export async function queryFetcher(url: string) {
 
 export function buildUrlSearchParams(
   handler: string,
-  object: Record<string, unknown>
+  object?: Record<string, unknown>
 ): URLSearchParams {
   const sp = new URLSearchParams();
-  for (const [key, value] of Object.entries(object)) {
+  for (const [key, value] of Object.entries(object ?? {})) {
     if (Array.isArray(value)) {
       for (const v of value) {
         sp.append(key, v);
