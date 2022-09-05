@@ -2,6 +2,9 @@ import z from "zod";
 import { query, mutation } from "@next-fetch/swr";
 import { userAgent } from "next/server";
 
+/**
+ * Queries a string
+ */
 export const useAllPeople = query(
   async () => {
     return `Many people are here!`;
