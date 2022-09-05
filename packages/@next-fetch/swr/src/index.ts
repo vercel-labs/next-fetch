@@ -13,11 +13,16 @@ export type QueryResult<Input, Output> = ((v: Input) => SWRResponse<Output>) & {
   meta: HookMetadata;
 };
 
+export function query<Output>(
+  callback: HandlerCallback<void, Output>,
+  options?: Partial<HookIntoResponse<Output>>
+): QueryResult<void, Output>;
 export function query<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>,
   options?: Partial<HookIntoResponse<Output>>
-): QueryResult<Input, Output> {
+): QueryResult<Input, Output>;
+export function query(): unknown {
   throw new Error("This code path should not be reached");
 }
 
@@ -30,11 +35,16 @@ export type MutationResult<Input, Output> = (() => SWRMutationResponse<
   meta: HookMetadata;
 };
 
+export function mutation<Output>(
+  callback: HandlerCallback<void, Output>,
+  options?: Partial<MutationOptions<Output>>
+): MutationResult<void, Output>;
 export function mutation<Input, Output>(
   parser: Parser<Input>,
   callback: HandlerCallback<Input, Output>,
   options?: Partial<MutationOptions<Output>>
-): MutationResult<Input, Output> {
+): MutationResult<Input, Output>;
+export function mutation(): unknown {
   throw new Error("This code path should not be reached");
 }
 

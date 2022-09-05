@@ -1,0 +1,41 @@
+import { useRuntimeInfoMutation } from "../api/rq/edge.rq";
+import { Form } from "@next-fetch/react-query/form";
+
+export const config = { runtime: "experimental-edge" };
+
+export default function Page(props: { runtime: string }) {
+  const listPeopleWith = useRuntimeInfoMutation();
+
+  return (
+    <div>
+      <Form mutation={listPeopleWith}>
+        <label>
+          Name: <input type="text" name="name" placeholder="Enter a name..." />
+        </label>
+        <button type="submit" tabIndex={0}>
+          Submit
+        </button>
+      </Form>
+      {!listPeopleWith.data ? (
+        <p id="result">
+          No data, {listPeopleWith.isLoading ? "mutating" : "idle"}.
+        </p>
+      ) : (
+        <ul id="result">
+          {listPeopleWith.data.map((name) => {
+            return <li key={name}>{name}</li>;
+          })}
+        </ul>
+      )}
+      <p>Rendered on {props.runtime}</p>
+    </div>
+  );
+}
+
+export const getServerSideProps = async () => {
+  return {
+    props: {
+      runtime: String(EdgeRuntime),
+    },
+  };
+};

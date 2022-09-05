@@ -1,21 +1,23 @@
-import { inputOf, outputOf } from "@next-fetch/swr";
-import { useAllPeople } from "./api/people.swr";
+import { useAllPeople, usePerson } from "./api/people.swr";
 
 export default function Home(props: { runtime: string }) {
-  const data: inputOf<typeof useAllPeople> = {
-    name: "gal",
-  };
-  const outputType: outputOf<typeof useAllPeople> = "a string";
-
-  const result = useAllPeople(data);
+  const allPeople = useAllPeople();
+  const singlePerson = usePerson({ name: "gal" });
 
   return (
     <div>
-      <div id="result">
-        {result.data
-          ? result.data
-          : result.error
-          ? String(result.error)
+      <div id="allPeople">
+        {allPeople.data
+          ? allPeople.data
+          : allPeople.error
+          ? String(allPeople.error)
+          : "loading..."}
+      </div>
+      <div id="singlePerson">
+        {singlePerson.data
+          ? singlePerson.data
+          : singlePerson.error
+          ? String(singlePerson.error)
           : "loading..."}
       </div>
       <p>Rendered on {props.runtime}</p>

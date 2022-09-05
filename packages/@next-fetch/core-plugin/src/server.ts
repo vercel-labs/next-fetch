@@ -11,15 +11,40 @@ export type HandlerCallback<Input, Output> = (
   input: Input
 ) => Promise<Output>;
 
-type Handler<Input, Output> = {
+type NormalizedHandler<Input, Output> = {
   parser: Parser<Input>;
   callback: HandlerCallback<Input, Output>;
   options: Partial<HookIntoResponse<Output>>;
 };
 
+type Handler<Input, Output> =
+  | NormalizedHandler<Input, Output>
+  | {
+      parser: HandlerCallback<Input, Output>;
+      callback: Partial<HookIntoResponse<Output>>;
+      options: undefined;
+    };
+
 type Handlers = Map<string, Handler<unknown, unknown>>;
 
 const API_CONTENT_TYPE = "application/json+api";
+
+function normalize<Input, Output>(
+  handler: Handler<Input, Output>
+): NormalizedHandler<Input, Output> {
+  // @ts-expect-error This fails for some reason
+  return typeof handler.parser === "function"
+    ? {
+        parser: undefined,
+        callback: handler.parser,
+        options: handler.callback,
+      }
+    : {
+        parser: handler.parser,
+        callback: handler.callback,
+        options: handler.options,
+      };
+}
 
 export async function handleEdgeFunction({
   queries,
@@ -44,24 +69,26 @@ export async function handleEdgeFunction({
     return new Response("unknown handler", { status: 400 });
   }
 
-  const { parser, callback } = handler;
+  const { parser, callback, options } = normalize(handler);
   let data: unknown;
 
-  try {
-    data = await parse(
-      parser,
-      bag === mutations
-        ? await getRequestBody(request)
-        : fromSearchParamToObject(url.searchParams)
-    );
-  } catch (e: any) {
-    return new Response(e?.message || "Malformed input", { status: 400 });
+  if (parser) {
+    try {
+      data = await parse(
+        parser,
+        bag === mutations
+          ? await getRequestBody(request)
+          : fromSearchParamToObject(url.searchParams)
+      );
+    } catch (e: any) {
+      return new Response(e?.message || "Malformed input", { status: 400 });
+    }
   }
 
   const response = await callback.call({ request }, data);
 
-  if (handler.options?.hookResponse && !forceJsonResponse) {
-    return handler.options.hookResponse.call({ request }, response);
+  if (options?.hookResponse && !forceJsonResponse) {
+    return options.hookResponse.call({ request }, response);
   }
 
   return NextResponse.json(response);
@@ -100,12 +127,14 @@ export async function handleNodejsFunction({
       .send(getUnknownHandlerError(String(req.query.__handler), bag));
   }
 
-  const { parser, callback } = handler;
+  const { parser, callback, options } = normalize(handler);
   let data;
-  try {
-    data = await parse(parser, bag === mutations ? req.body : req.query);
-  } catch (e: any) {
-    return res.status(400).send(e?.message || "Malformed input");
+  if (parser) {
+    try {
+      data = await parse(parser, bag === mutations ? req.body : req.query);
+    } catch (e: any) {
+      return res.status(400).send(e?.message || "Malformed input");
+    }
   }
 
   /**
@@ -123,8 +152,8 @@ export async function handleNodejsFunction({
 
   const response = await callback.call(context, data);
 
-  if (handler.options?.hookResponse && !forceJsonResponse) {
-    const manipulatedResponse = await handler.options.hookResponse.call(
+  if (options?.hookResponse && !forceJsonResponse) {
+    const manipulatedResponse = await options.hookResponse.call(
       context,
       response
     );

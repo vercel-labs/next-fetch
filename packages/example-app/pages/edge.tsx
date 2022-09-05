@@ -1,17 +1,25 @@
-import { useRuntimeInfo } from "./api/edge.swr";
+import { useRuntimeInfo, useNoArgs } from "./api/edge.swr";
 
 export const config = { runtime: "experimental-edge" };
 
 export default function Home(props: { runtime: string }) {
-  const result = useRuntimeInfo({ name: "gal" });
+  const runtimeInfo = useRuntimeInfo({ name: "gal" });
+  const noArgs = useNoArgs();
 
   return (
     <div>
-      <div id="result">
-        {result.data
-          ? result.data
-          : result.error
-          ? String(result.error)
+      <div id="runtimeInfo">
+        {runtimeInfo.data
+          ? runtimeInfo.data
+          : runtimeInfo.error
+          ? String(runtimeInfo.error)
+          : "loading..."}
+      </div>
+      <div id="noArgs">
+        {noArgs.data
+          ? noArgs.data
+          : noArgs.error
+          ? String(noArgs.error)
           : "loading..."}
       </div>
       <p>Rendered on {props.runtime}</p>

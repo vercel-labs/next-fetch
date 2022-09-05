@@ -1,6 +1,9 @@
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { Parser } from "@next-fetch/core-plugin/parser";
-import type { HandlerCallback } from "@next-fetch/core-plugin/server";
+import type {
+  HandlerCallback,
+  HookIntoResponse,
+} from "@next-fetch/core-plugin/server";
 import type { NextConfig } from "next";
 import type { HookMetadata } from "@next-fetch/core-plugin/client";
 import { createPlugin } from "@next-fetch/core-plugin";
@@ -12,17 +15,29 @@ export type MutationResult<Input, Output> = () => UseMutationResult<
   Input
 > & { meta: HookMetadata };
 
+export function query<Output>(
+  callback: HandlerCallback<void, Output>,
+  options?: Partial<HookIntoResponse<Output>>
+): QueryResult<void, Output>;
 export function query<Input, Output>(
   parser: Parser<Input>,
-  callback: HandlerCallback<Input, Output>
-): (v: Input) => UseQueryResult<Output> {
+  callback: HandlerCallback<Input, Output>,
+  options?: Partial<HookIntoResponse<Output>>
+): QueryResult<Input, Output>;
+export function query(): unknown {
   throw new Error("This code path should not be reached");
 }
 
+export function mutation<Output>(
+  callback: HandlerCallback<void, Output>,
+  options?: Partial<HookIntoResponse<Output>>
+): MutationResult<void, Output>;
 export function mutation<Input, Output>(
   parser: Parser<Input>,
-  callback: HandlerCallback<Input, Output>
-): () => UseMutationResult<Output, any, Input> & { meta: HookMetadata } {
+  callback: HandlerCallback<Input, Output>,
+  options?: Partial<HookIntoResponse<Output>>
+): MutationResult<Input, Output>;
+export function mutation(): unknown {
   throw new Error("This code path should not be reached");
 }
 
