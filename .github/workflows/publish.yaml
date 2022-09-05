@@ -9,6 +9,8 @@ on:
 
 env:
   NODE_VERSION: '16'
+  TURBO_TEAM: ${{ secrets.TURBOREPO_REMOTE_CACHING_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBOREPO_REMOTE_CACHING_TOKEN }}
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -25,7 +27,6 @@ jobs:
         with:
           path: |
             ~/.pnpm-store
-            node_modules/.cache/turbo
             node_modules/.pnpm
           key: ${{ runner.os }}-node${{ env.NODE_VERSION }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
