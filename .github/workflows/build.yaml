@@ -8,6 +8,10 @@ on:
     - '!*'
   pull_request:
 
+env:
+  TURBO_TEAM: ${{ secrets.TURBOREPO_REMOTE_CACHING_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBOREPO_REMOTE_CACHING_TOKEN }}
+
 jobs:
   test:
     runs-on: ubuntu-latest

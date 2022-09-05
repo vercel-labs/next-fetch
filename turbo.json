@@ -2,7 +2,7 @@
   "$schema": "https://turborepo.org/schema.json",
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "$NEXT_EDGE_RUNTIME_PROVIDER"],
       "outputs": ["dist/**", ".next/**"]
     },
     "dev": {
@@ -10,6 +10,7 @@
     },
     "test": {
       "dependsOn": ["prepare-env:test", "build"],
+      "inputs": ["tests/**"],
       "outputs": []
     },
     "prepare-env:test": {
