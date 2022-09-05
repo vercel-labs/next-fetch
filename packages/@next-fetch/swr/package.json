@@ -1,6 +1,6 @@
 {
   "name": "@next-fetch/swr",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -29,7 +29,7 @@
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5",
     "next": "^12.2.4",
-    "@next-fetch/core-plugin": "workspace:^0.0.0",
+    "@next-fetch/core-plugin": "workspace:^0.0.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "swr": "^2.0.0-beta.6",

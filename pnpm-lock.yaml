@@ -51,7 +51,7 @@ importers:
 
   packages/@next-fetch/react-query:
     specifiers:
-      '@next-fetch/core-plugin': workspace:^0.0.0
+      '@next-fetch/core-plugin': workspace:^0.0.1
       '@tanstack/react-query': ^4.0.10
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
@@ -75,7 +75,7 @@ importers:
 
   packages/@next-fetch/swr:
     specifiers:
-      '@next-fetch/core-plugin': workspace:^0.0.0
+      '@next-fetch/core-plugin': workspace:^0.0.1
       '@types/react': ^18.0.10
       '@types/react-dom': ^18.0.5
       next: ^12.2.4
@@ -3892,7 +3892,7 @@ packages:
     dev: false
 
   /remove-accents/0.4.2:
-    resolution: {integrity: sha1-CkPTqq4egNuRngeuJUsoXZ4ce7U=}
+    resolution: {integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==}
     dev: false
 
   /require-directory/2.1.1:
@@ -4361,7 +4361,7 @@ packages:
     dev: false
 
   /titleize/1.0.0:
-    resolution: {integrity: sha1-fTUHIgYYMLpmF2MeDP0+oIOY2Vo=}
+    resolution: {integrity: sha512-TARUb7z1pGvlLxgPk++7wJ6aycXF3GJ0sNSBTAsTuJrQG5QuZlkUQP+zl+nbjAh4gMX9yDw9ZYklMd7vAfJKEw==}
     engines: {node: '>=0.10.0'}
     dev: false
 
