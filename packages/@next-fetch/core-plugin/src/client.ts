@@ -11,20 +11,20 @@ export async function mutationFetcher(url: string, { arg }: { arg: unknown }) {
     },
   });
   if (!response.ok) {
-    throw new Error("Response with status ${response.status} is not ok.");
+    throw new Error(`Response with status ${response.status} is not ok.`);
   }
   return response.json();
 }
 
 /**
- * The fetcher implementation for `mutation` calls.
+ * The fetcher implementation for `query` calls.
  */
 export async function queryFetcher(url: string) {
   const response = await fetch(url, {
     headers: { Accept: "application/json+api" },
   });
   if (!response.ok) {
-    throw new Error("Response with status ${response.status} is not ok.");
+    throw new Error(`Response with status ${response.status} is not ok.`);
   }
   return response.json();
 }
