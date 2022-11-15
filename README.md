@@ -18,7 +18,7 @@ Think in React, instead about routing: Next Fetch is an intuitive way to dynamic
 
 ## What does that mean?
 
-Next Fetch is using compile-time transformations to allow you to _import_ your API endpoints instead of referecing them as plain strings, while keeping the type definitions co-located with the implementation.
+Next Fetch is using compile-time transformations to allow you to _import_ your API endpoints instead of referencing them as plain strings, while keeping the type definitions co-located with the implementation.
 
 <table>
 <thead>

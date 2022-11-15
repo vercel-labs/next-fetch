@@ -15,7 +15,9 @@ export function useForm<Input, Config>(
   hook: HookWithFormSubmission<Input, Config>,
   config?: Config
 ): {
-  formProps: HTMLProps<HTMLFormElement>;
+  formProps: HTMLProps<HTMLFormElement> & {
+    encType?: "application/x-www-form-urlencoded";
+  };
 } {
   const { trigger, meta } = hook;
 

@@ -83,7 +83,9 @@ export default function Home() {
 ```ts
 // pages/api/simple.swr.ts
 
-export const useMutation = query(
+import { mutation } from "@next-fetch/swr";
+
+export const useMutation = mutation(
   z.object({ name: z.string() }),
   async ({ name }) => {
     return { message: "Hello " + name };
