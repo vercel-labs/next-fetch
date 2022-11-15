@@ -22,7 +22,9 @@ export function useForm<Data, Error>(
   hook: HookWithFormSubmission<Data, Error>,
   config?: SWRMutationConfiguration<Data, Error>
 ): {
-  formProps: HTMLProps<HTMLFormElement>;
+  formProps: HTMLProps<HTMLFormElement> & {
+    encType?: "application/x-www-form-urlencoded";
+  };
 } {
   return useForm_(hook, config);
 }
@@ -40,6 +42,7 @@ export function Form<Data, Error>({
   React.PropsWithChildren<{
     mutation: HookWithFormSubmission<Data, Error>;
     mutationConfig?: SWRMutationConfiguration<Data, Error>;
+    encType?: "application/x-www-form-urlencoded";
   }>) {
   const { formProps } = useForm(mutation, mutationConfig);
   return createElement("form", { ...formProps, ...props }, props.children);
