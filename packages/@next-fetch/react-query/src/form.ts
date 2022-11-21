@@ -32,19 +32,17 @@ export function useForm<Data, Error, Input, Context>(
  * This enables progressive enhancement, as the form can be submitted
  * without having to re-render the app using JavaScript code.
  */
-
-// 4. https://stackoverflow.com/questions/58469229/react-with-typescript-generics-while-using-react-forwardref/58473012#58473012
-declare module "react" {
-  function forwardRef<T, P = {}>(
-    render: (props: P, ref: React.ForwardedRef<T>) => React.ReactElement | null
-  ): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
-}
-
 type FormProps<Data, Error, Input, Context> = React.HTMLProps<HTMLFormElement> &
   React.PropsWithChildren<{
     mutation: HookWithFormSubmission<Data, Error, Input, Context>;
     mutationConfig?: UseMutationOptions<Data, Error, Input, Context>;
   }>;
+
+type FormT = <Data, Error, Input, Context>(
+  props: FormProps<Data, Error, Input, Context> & {
+    ref?: React.ForwardedRef<HTMLFormElement>;
+  }
+) => ReturnType<typeof FormImpl>;
 
 export function FormImpl<Data, Error, Input, Context>(
   {
@@ -59,4 +57,5 @@ export function FormImpl<Data, Error, Input, Context>(
   return createElement("form", { ...formProps, ...props, ref }, props.children);
 }
 
-export const Form = forwardRef(FormImpl)
+// 1. https://stackoverflow.com/questions/58469229/react-with-typescript-generics-while-using-react-forwardref/58473012#58473012
+export const Form = forwardRef(FormImpl) as unknown as FormT;
